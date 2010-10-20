@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="en" class="no-js">
+<head>
+  <title>Thingiview Examples - STL - Cube</title>
+
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  
+  <script src="../javascripts/Three.js"></script>
+  <script src="../javascripts/stats.js"></script>
+  <script src="../javascripts/plane.js"></script>
+  <script src="../javascripts/binaryajax.js"></script>
+  <script src="../javascripts/thingiview.js"></script>
+  
+  <script>
+    window.onload = function() {
+      thingiview = new Thingiview("viewer");
+      
+      thingiview.initScene();
+      thingiview.loadSTL("objects/cube.stl");
+      
+      thingiview.toggleRotate();
+    }
+  </script>
+</head>
+<body>
+
+<header>
+  <h1>Thingiview Examples - STL - Cube</h1>
+</header>
+
+<p>
+  <input onclick="thingiview.cameraView('top');" type="button" value="Top" /> 
+  <input onclick="thingiview.cameraView('side');" type="button" value="Side" /> 
+  <input onclick="thingiview.cameraView('bottom');" type="button" value="Bottom" /> 
+  <input onclick="thingiview.cameraView('diagonal');" type="button" value="Diagonal" /> 
+ 
+  <input onclick="thingiview.cameraZoom(5);" type="button" value="Zoom +" /> 
+  <input onclick="thingiview.cameraZoom(-5);" type="button" value="Zoom -" /> 
+ 
+  <input onclick="thingiview.toggleRotate();" type="button" value="Toggle Rotation" />
+</p>
+
+<div id="viewer" style="width:400px;height:400px"></div>
+
+<p>
+  <input onclick="thingiview.objectMaterial('wireframe');" type="button" value="Wireframe" /> 
+  <input onclick="thingiview.objectMaterial('solid');" type="button" value="Solid" />
+</p>
+
+<footer>
+  <nav>
+    <a href="index.html">&larr; Examples</a>
+  </nav>
+</footer>
+
+</body>
+</html>

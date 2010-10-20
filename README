@@ -1,0 +1,6 @@
+Thingiview
+==========
+
+A javascript STL and OBJ model viewer.
+
+Uses Three.js - Javascript 3D Engine http://github.com/mrdoob/three.js
