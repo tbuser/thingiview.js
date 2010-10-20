@@ -2,144 +2,144 @@ Thingiview = function(containerId) {
   scope = this;
   
   this.containerId  = containerId;
-  var _container    = document.getElementById(containerId);
+  var container     = document.getElementById(containerId);
   
-  var _stats    = null;
-  var _camera   = null;
-  var _scene    = null;
-  var _renderer = null;
-  var _object   = null;
-  var _plane    = null;
+  var stats    = null;
+  var camera   = null;
+  var scene    = null;
+  var renderer = null;
+  var object   = null;
+  var plane    = null;
   
-  var _ambientLight     = null;
-  var _directionalLight = null;
-  var _pointLight       = null;
+  var ambientLight     = null;
+  var directionalLight = null;
+  var pointLight       = null;
   
-  var _targetRotation             = 0;
-  var _targetRotationOnMouseDown  = 0;
-  var _mouseX                     = 0;
-  var _mouseXOnMouseDown          = 0;
-  var _mouseDown                  = false;
+  var targetRotation             = 0;
+  var targetRotationOnMouseDown  = 0;
+  var mouseX                     = 0;
+  var mouseXOnMouseDown          = 0;
+  var mouseDown                  = false;
   
-  var _windowHalfX = window.innerWidth / 2;
-  var _windowHalfY = window.innerHeight / 2
+  var windowHalfX = window.innerWidth / 2;
+  var windowHalfY = window.innerHeight / 2
 
-  var _view         = null;
-  var _infoMessage  = null;
+  var view         = null;
+  var infoMessage  = null;
   
-  var _timer        = null;
-  var _rotateTimer  = null;
+  var timer        = null;
+  var rotateTimer  = null;
 
   this.showPlane = true;
 
-  var _width  = parseFloat(document.defaultView.getComputedStyle(_container,null).getPropertyValue('width'));
-  var _height = parseFloat(document.defaultView.getComputedStyle(_container,null).getPropertyValue('height'));  
+  var width  = parseFloat(document.defaultView.getComputedStyle(container,null).getPropertyValue('width'));
+  var height = parseFloat(document.defaultView.getComputedStyle(container,null).getPropertyValue('height'));  
 
   this.initScene = function() {
-    _container.style.position = 'relative';
-    _container.innerHTML      = '';
+    container.style.position = 'relative';
+    container.innerHTML      = '';
 
-  	_infoMessage                  = document.createElement('div');
-  	_infoMessage.style.position   = 'absolute';
-  	_infoMessage.style.top        = '10px';
-  	_infoMessage.style.width      = '100%';
-  	_infoMessage.style.textAlign  = 'center';
-  	_infoMessage.innerHTML        = 'Loading STL...';
-  	_container.appendChild(_infoMessage);
+  	infoMessage                  = document.createElement('div');
+  	infoMessage.style.position   = 'absolute';
+  	infoMessage.style.top        = '10px';
+  	infoMessage.style.width      = '100%';
+  	infoMessage.style.textAlign  = 'center';
+  	infoMessage.innerHTML        = 'Loading STL...';
+  	container.appendChild(infoMessage);
 
-  	_camera = new THREE.Camera(70, _width / _height, 1, 10000);
-  	_scene  = new THREE.Scene();
+  	camera = new THREE.Camera(70, width / height, 1, 10000);
+  	scene  = new THREE.Scene();
 
     // load a blank object
     this.loadSTLString('');
 
     if (this.showPlane) {
-  	  _plane = new THREE.Mesh(new Plane(100, 100, 10, 10), new THREE.MeshColorStrokeMaterial(0xafafaf, 0.5, 1));
-      _plane.updateMatrix();
-      // _plane.doubleSided = true;
-      _scene.addObject(_plane);
+  	  plane = new THREE.Mesh(new Plane(100, 100, 10, 10), new THREE.MeshColorStrokeMaterial(0xafafaf, 0.5, 1));
+      plane.updateMatrix();
+      // plane.doubleSided = true;
+      scene.addObject(plane);
     }
 
-    // _ambientLight = new THREE.AmbientLight(0x80ffff);
-    // _scene.addLight(_ambientLight);
+    // ambientLight = new THREE.AmbientLight(0x80ffff);
+    // scene.addLight(ambientLight);
     // 
-    // _directionalLight = new THREE.DirectionalLight(0xffff00);
-    // _scene.addLight(_directionalLight);
+    // directionalLight = new THREE.DirectionalLight(0xffff00);
+    // scene.addLight(directionalLight);
 
-    // _ambientLight = new THREE.AmbientLight(Math.random() * 0x202020);
-		_ambientLight = new THREE.AmbientLight(0x202020);
-		_scene.addLight(_ambientLight);
+    // ambientLight = new THREE.AmbientLight(Math.random() * 0x202020);
+		ambientLight = new THREE.AmbientLight(0x202020);
+		scene.addLight(ambientLight);
 
-    // _directionalLight = new THREE.DirectionalLight( Math.random() * 0xffffff);
-    // _directionalLight.position.x = Math.random() - 0.5;
-    // _directionalLight.position.y = Math.random() - 0.5;
-    // _directionalLight.position.z = Math.random() - 0.5;
-		_directionalLight = new THREE.DirectionalLight(0xffffff);
-		_directionalLight.position.x = 0.5;
-		_directionalLight.position.y = 0.5;
-		_directionalLight.position.z = 0.5;
-		_directionalLight.position.normalize();
-		_scene.addLight(_directionalLight);
+    // directionalLight = new THREE.DirectionalLight( Math.random() * 0xffffff);
+    // directionalLight.position.x = Math.random() - 0.5;
+    // directionalLight.position.y = Math.random() - 0.5;
+    // directionalLight.position.z = Math.random() - 0.5;
+		directionalLight = new THREE.DirectionalLight(0xffffff);
+		directionalLight.position.x = 0.5;
+		directionalLight.position.y = 0.5;
+		directionalLight.position.z = 0.5;
+		directionalLight.position.normalize();
+		scene.addLight(directionalLight);
 
-		_pointLight = new THREE.PointLight(0xff0000, 1);
-		_scene.addLight(_pointLight);
+		pointLight = new THREE.PointLight(0xff0000, 1);
+		scene.addLight(pointLight);
 
     testCanvas = document.createElement('canvas');
     try {
       if (testCanvas.getContext('experimental-webgl')) {
-        _renderer = new THREE.WebGLRenderer();
+        renderer = new THREE.WebGLRenderer();
       } else {
-        _renderer = new THREE.CanvasRenderer();
+        renderer = new THREE.CanvasRenderer();
       }
     } catch(e) {
-      _renderer = new THREE.CanvasRenderer();
+      renderer = new THREE.CanvasRenderer();
     }
     
-  	_renderer.setSize(_width, _height);
-    _renderer.domElement.style.backgroundColor = '#606060';
-  	_container.appendChild(_renderer.domElement);
+  	renderer.setSize(width, height);
+    renderer.domElement.style.backgroundColor = '#606060';
+  	container.appendChild(renderer.domElement);
 
     this.cameraView('diagonal');
     this.objectMaterial('solid');
 
-  	_stats = new Stats();
-  	_stats.domElement.style.position  = 'absolute';
-  	_stats.domElement.style.top       = '0px';
-  	_container.appendChild(_stats.domElement);
+  	stats = new Stats();
+  	stats.domElement.style.position  = 'absolute';
+  	stats.domElement.style.top       = '0px';
+  	container.appendChild(stats.domElement);
 
-    // window.addEventListener('resize', _onContainerResize(), false);
-    _container.addEventListener('resize', _onContainerResize(), false);
+    // window.addEventListener('resize', onContainerResize(), false);
+    container.addEventListener('resize', onContainerResize(), false);
 
 
-  	_renderer.domElement.addEventListener('mousemove',      _onRendererMouseMove,     false);    
-    _renderer.domElement.addEventListener('mouseover',      _onRendererMouseOver,     false);
-    _renderer.domElement.addEventListener('mouseout',       _onRendererMouseOut,      false);
-  	_renderer.domElement.addEventListener('mousedown',      _onRendererMouseDown,     false);
-    _renderer.domElement.addEventListener('mouseup',        _onRendererMouseUp,       false);
+  	renderer.domElement.addEventListener('mousemove',      onRendererMouseMove,     false);    
+    renderer.domElement.addEventListener('mouseover',      onRendererMouseOver,     false);
+    renderer.domElement.addEventListener('mouseout',       onRendererMouseOut,      false);
+  	renderer.domElement.addEventListener('mousedown',      onRendererMouseDown,     false);
+    renderer.domElement.addEventListener('mouseup',        onRendererMouseUp,       false);
 
-  	_renderer.domElement.addEventListener('touchstart',     _onRendererTouchStart,    false);
-  	_renderer.domElement.addEventListener('touchend',       _onRendererTouchEnd,      false);
-  	_renderer.domElement.addEventListener('touchmove',      _onRendererTouchMove,     false);
+  	renderer.domElement.addEventListener('touchstart',     onRendererTouchStart,    false);
+  	renderer.domElement.addEventListener('touchend',       onRendererTouchEnd,      false);
+  	renderer.domElement.addEventListener('touchmove',      onRendererTouchMove,     false);
 
-    _renderer.domElement.addEventListener('DOMMouseScroll', _onRendererScroll,        false);
-  	_renderer.domElement.addEventListener('mousewheel',     _onRendererScroll,        false);
-  	_renderer.domElement.addEventListener('gesturechange',  _onRendererGestureChange, false);
+    renderer.domElement.addEventListener('DOMMouseScroll', onRendererScroll,        false);
+  	renderer.domElement.addEventListener('mousewheel',     onRendererScroll,        false);
+  	renderer.domElement.addEventListener('gesturechange',  onRendererGestureChange, false);
   }
 
-  _onContainerResize = function(event) {
-    _width  = parseFloat(document.defaultView.getComputedStyle(_container,null).getPropertyValue('width'));
-    _height = parseFloat(document.defaultView.getComputedStyle(_container,null).getPropertyValue('height'));
+  onContainerResize = function(event) {
+    width  = parseFloat(document.defaultView.getComputedStyle(container,null).getPropertyValue('width'));
+    height = parseFloat(document.defaultView.getComputedStyle(container,null).getPropertyValue('height'));
 
-    console.log("resized width: " + _width + ", height: " + _height);
+    console.log("resized width: " + width + ", height: " + height);
   
-    if (_renderer) {
-      _renderer.setSize(_width, _height);
-      _camera.projectionMatrix = THREE.Matrix4.makePerspective(70, _width / _height, 1, 10000);
-      _sceneLoop();
+    if (renderer) {
+      renderer.setSize(width, height);
+      camera.projectionMatrix = THREE.Matrix4.makePerspective(70, width / height, 1, 10000);
+      sceneLoop();
     }    
   };
   
-  _onRendererScroll = function(event) {
+  onRendererScroll = function(event) {
     event.preventDefault();
 
     var rolled = 0;
@@ -161,7 +161,7 @@ Thingiview = function(containerId) {
     }
   }
 
-  _onRendererGestureChange = function(event) {
+  onRendererGestureChange = function(event) {
     event.preventDefault();
 
     if (event.scale > 1) {
@@ -171,180 +171,180 @@ Thingiview = function(containerId) {
     }
   }
 
-  _onRendererMouseOver = function(event) {
+  onRendererMouseOver = function(event) {
     // console.log("over");
-    _targetRotation = _object.rotation.z;
-    _timer = setInterval(_sceneLoop, 1000/60);
+    targetRotation = object.rotation.z;
+    timer = setInterval(sceneLoop, 1000/60);
   }
 
-  _onRendererMouseDown = function(event) {
+  onRendererMouseDown = function(event) {
     // console.log("down");
-  	_mouseDown = true;
+  	mouseDown = true;
   	event.preventDefault();
   	
-  	clearInterval(_rotateTimer);
-    _rotateTimer = null;
+  	clearInterval(rotateTimer);
+    rotateTimer = null;
     
-  	_mouseXOnMouseDown = event.clientX - _windowHalfX;
-  	_targetRotationOnMouseDown = _targetRotation;
+  	mouseXOnMouseDown = event.clientX - windowHalfX;
+  	targetRotationOnMouseDown = targetRotation;
   }
 
-  _onRendererMouseMove = function(event) {
+  onRendererMouseMove = function(event) {
     // console.log("move");
-    if (_mouseDown) {
-  	  _mouseX = event.clientX - _windowHalfX;
-  	  _targetRotation = _targetRotationOnMouseDown + (_mouseX - _mouseXOnMouseDown) * 0.02;
+    if (mouseDown) {
+  	  mouseX = event.clientX - windowHalfX;
+  	  targetRotation = targetRotationOnMouseDown + (mouseX - mouseXOnMouseDown) * 0.02;
 	  }
   }
 
-  _onRendererMouseUp = function(event) {
+  onRendererMouseUp = function(event) {
     // console.log("up");
-    _mouseDown = false;
+    mouseDown = false;
   }
 
-  _onRendererMouseOut = function(event) {
+  onRendererMouseOut = function(event) {
     // console.log("out");
-    clearInterval(_timer);
-    _timer = null;
-    _targetRotation = _object.rotation.z;
+    clearInterval(timer);
+    timer = null;
+    targetRotation = object.rotation.z;
   }
 
-  _onRendererTouchStart = function(event) {
-    _targetRotation = _object.rotation.z;
-    _timer = setInterval(_sceneLoop, 1000/60);
+  onRendererTouchStart = function(event) {
+    targetRotation = object.rotation.z;
+    timer = setInterval(sceneLoop, 1000/60);
 
   	if (event.touches.length == 1) {
   		event.preventDefault();
 
-  		_mouseXOnMouseDown = event.touches[0].pageX - _windowHalfX;
-  		_targetRotationOnMouseDown = _targetRotation;
+  		mouseXOnMouseDown = event.touches[0].pageX - windowHalfX;
+  		targetRotationOnMouseDown = targetRotation;
   	}
   }
 
-  _onRendererTouchEnd = function(event) {
-    clearInterval(_timer);
-    _timer = null;
-    _targetRotation = _object.rotation.z;
+  onRendererTouchEnd = function(event) {
+    clearInterval(timer);
+    timer = null;
+    targetRotation = object.rotation.z;
   }
 
-  _onRendererTouchMove = function(event) {
+  onRendererTouchMove = function(event) {
   	if (event.touches.length == 1) {
   		event.preventDefault();
 
-  		_mouseX = event.touches[0].pageX - _windowHalfX;
-  		_targetRotation = _targetRotationOnMouseDown + (_mouseX - _mouseXOnMouseDown) * 0.05;
+  		mouseX = event.touches[0].pageX - windowHalfX;
+  		targetRotation = targetRotationOnMouseDown + (mouseX - mouseXOnMouseDown) * 0.05;
   	}
   }
 
-  _sceneLoop = function() {
-    if (_stats) {
-      if (_view == 'bottom') {
+  sceneLoop = function() {
+    if (stats) {
+      if (view == 'bottom') {
         if (scope.showPlane) {
-          _plane.rotation.z = _object.rotation.z -= (_targetRotation + _object.rotation.z) * 0.05;
+          plane.rotation.z = object.rotation.z -= (targetRotation + object.rotation.z) * 0.05;
         } else {
-          _object.rotation.z -= (_targetRotation + _object.rotation.z) * 0.05;
+          object.rotation.z -= (targetRotation + object.rotation.z) * 0.05;
         }
       } else {
         if (scope.showPlane) {
-          _plane.rotation.z = _object.rotation.z += (_targetRotation - _object.rotation.z) * 0.05;
+          plane.rotation.z = object.rotation.z += (targetRotation - object.rotation.z) * 0.05;
         } else {
-          _object.rotation.z += (_targetRotation - _object.rotation.z) * 0.05;
+          object.rotation.z += (targetRotation - object.rotation.z) * 0.05;
         }
       }
 
-      _camera.updateMatrix();
-      _object.updateMatrix();
-      _plane.updateMatrix();
+      camera.updateMatrix();
+      object.updateMatrix();
+      plane.updateMatrix();
 
-    	_renderer.render(_scene, _camera);
-    	_stats.update();
+    	renderer.render(scene, camera);
+    	stats.update();
     }
   }
 
-  _rotateLoop = function() {
-    _targetRotation += 0.01;
-    _sceneLoop();
+  rotateLoop = function() {
+    targetRotation += 0.01;
+    sceneLoop();
   }
 
   this.toggleRotate = function() {
-    if (_rotateTimer == null) {
-      _rotateTimer = setInterval(_rotateLoop, 1000/60);
+    if (rotateTimer == null) {
+      rotateTimer = setInterval(rotateLoop, 1000/60);
     } else {
-      clearInterval(_rotateTimer);
-      _rotateTimer = null;
+      clearInterval(rotateTimer);
+      rotateTimer = null;
     }
   }
 
   this.cameraView = function(dir) {
-    _view = dir;
+    view = dir;
     
     if (dir == 'top') {
-      _camera.position.y = 0;
-      _camera.position.z = 100;
+      camera.position.y = 0;
+      camera.position.z = 100;
       if (this.showPlane) {
-        _plane.flipSided = false;
+        plane.flipSided = false;
       }
     } else if (dir == 'side') {
-      _camera.position.y = 100;
-      _camera.position.z = -0.1;
+      camera.position.y = 100;
+      camera.position.z = -0.1;
       if (this.showPlane) {
-        _plane.flipSided = false;
+        plane.flipSided = false;
       }
     } else if (dir == 'bottom') {
-      _camera.position.y = 0;
-      _camera.position.z = -100;
+      camera.position.y = 0;
+      camera.position.z = -100;
       if (this.showPlane) {
-        _plane.flipSided = true;
+        plane.flipSided = true;
       }
     } else {
-      _camera.position.y = -70;
-      _camera.position.z = 70;
+      camera.position.y = -70;
+      camera.position.z = 70;
       if (this.showPlane) {
-        _plane.flipSided = false;
+        plane.flipSided = false;
       }
     }
 
-    _targetRotation     = 0;
+    targetRotation     = 0;
     
-    if (_object) {
-      _object.rotation.z  = 0;
+    if (object) {
+      object.rotation.z  = 0;
     }
     
-    if (this.showPlane && _object) {
-      _plane.rotation.z = _object.rotation.z;
+    if (this.showPlane && object) {
+      plane.rotation.z = object.rotation.z;
     }
 
-    _sceneLoop();
+    sceneLoop();
   }
 
   this.cameraZoom = function(factor) {
-    if (_view == 'top') {
-      _camera.position.z -= factor;
-    } else if (_view == 'bottom') {
-      _camera.position.z += factor;
-    } else if (_view == 'side') {
-      _camera.position.y -= factor;
+    if (view == 'top') {
+      camera.position.z -= factor;
+    } else if (view == 'bottom') {
+      camera.position.z += factor;
+    } else if (view == 'side') {
+      camera.position.y -= factor;
     } else {
-      _camera.position.y += factor;
-      _camera.position.z -= factor;
+      camera.position.y += factor;
+      camera.position.z -= factor;
     }
 
-    _sceneLoop();
+    sceneLoop();
   }
 
   this.objectMaterial = function(type) {
-  	_scene.removeObject(_object);
+  	scene.removeObject(object);
     if (type == 'wireframe') {
-      _object = new THREE.Mesh(_geometry, new THREE.MeshColorStrokeMaterial(0x000, 1, 1));
-      _object.updateMatrix();
-  		_scene.addObject(_object);
+      object = new THREE.Mesh(geometry, new THREE.MeshColorStrokeMaterial(0x000, 1, 1));
+      object.updateMatrix();
+  		scene.addObject(object);
     } else {
-      _object = new THREE.Mesh(_geometry, new THREE.MeshColorFillMaterial(0xffffff));
-      _object.updateMatrix();
-  		_scene.addObject(_object);
+      object = new THREE.Mesh(geometry, new THREE.MeshColorFillMaterial(0xffffff));
+      object.updateMatrix();
+  		scene.addObject(object);
     }
 
-    _sceneLoop();
+    sceneLoop();
   }
 
   this.loadSTL = function(url) {
@@ -369,27 +369,27 @@ Thingiview = function(containerId) {
   this.loadSTLString = function(STLString) {
     // console.log("STLString: \n" + STLString);
 
-    _scene.removeObject(_object);
+    scene.removeObject(object);
 
-    _geometry = new STLGeometry(STLString);
+    geometry = new STLGeometry(STLString);
 
     // rand = Math.random() * 0.5;
-    // for (var i = 0; i < _geometry.faces.length; i++) {
-    //       _geometry.faces[i].color.setRGBA(Math.random() * 0.5, Math.random() * 0.5 + 0.5, 1, 1);
-    //       // _geometry.faces[i].color.setRGBA(rand, rand + 0.5, 1, 1);
+    // for (var i = 0; i < geometry.faces.length; i++) {
+    //       geometry.faces[i].color.setRGBA(Math.random() * 0.5, Math.random() * 0.5 + 0.5, 1, 1);
+    //       // geometry.faces[i].color.setRGBA(rand, rand + 0.5, 1, 1);
     // }
 
-    // _object = new THREE.Mesh(_geometry, new THREE.MeshFaceColorFillMaterial());
-    _object = new THREE.Mesh(_geometry, new THREE.MeshColorFillMaterial(0xffffff));
-    // _object = new THREE.Mesh(_geometry, new THREE.MeshFaceColorFillMaterial());
-    // _object.doubleSided = true;
-    // _object.overDraw = true;
-    _object.updateMatrix();
-  	_scene.addObject(_object);
+    // object = new THREE.Mesh(geometry, new THREE.MeshFaceColorFillMaterial());
+    object = new THREE.Mesh(geometry, new THREE.MeshColorFillMaterial(0xffffff));
+    // object = new THREE.Mesh(geometry, new THREE.MeshFaceColorFillMaterial());
+    // object.doubleSided = true;
+    // object.overDraw = true;
+    object.updateMatrix();
+  	scene.addObject(object);
 
-    _infoMessage.innerHTML = 'Finished Loading ' + _geometry.faces.length + ' faces';
+    infoMessage.innerHTML = 'Finished Loading ' + geometry.faces.length + ' faces';
 
-    _sceneLoop();
+    sceneLoop();
   }
   
   this.loadOBJString = function(OBJString) {
