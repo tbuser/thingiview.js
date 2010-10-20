@@ -54,9 +54,12 @@ Thingiview = function(containerId) {
     this.loadSTLString('');
 
     if (this.showPlane) {
-  	  plane = new THREE.Mesh(new Plane(100, 100, 10, 10), new THREE.MeshColorStrokeMaterial(0xafafaf, 0.5, 1));
+      // plane = new THREE.Mesh(new Plane(100, 100, 10, 10), new THREE.MeshColorStrokeMaterial(0xafafaf, 0.5, 1));
+      plane = new THREE.Mesh(new Plane(100, 100, 2, 2), new THREE.MeshColorStrokeMaterial(0xafafaf, 0.5, 1));
+      // plane = new THREE.Mesh(new Plane(100, 100, 10, 10), new THREE.MeshColorFillMaterial(0xffffff, 0.5));
       plane.updateMatrix();
       // plane.doubleSided = true;
+      // plane.position.z = 1;
       scene.addObject(plane);
     }
 
@@ -75,9 +78,9 @@ Thingiview = function(containerId) {
     // directionalLight.position.y = Math.random() - 0.5;
     // directionalLight.position.z = Math.random() - 0.5;
 		directionalLight = new THREE.DirectionalLight(0xffffff);
-		directionalLight.position.x = 0.5;
-		directionalLight.position.y = 0.5;
-		directionalLight.position.z = 0.5;
+		directionalLight.position.x = 1;
+		directionalLight.position.y = 1;
+		directionalLight.position.z = 1;
 		directionalLight.position.normalize();
 		scene.addLight(directionalLight);
 
@@ -388,6 +391,8 @@ Thingiview = function(containerId) {
   	scene.addObject(object);
 
     infoMessage.innerHTML = 'Finished Loading ' + geometry.faces.length + ' faces';
+
+    targetRotation = 0;
 
     sceneLoop();
   }

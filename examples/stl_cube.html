@@ -26,8 +26,22 @@
 <body>
 
 <header>
-  <h1>Thingiview Examples - STL - Cube</h1>
+  <h1>Thingiview Examples</h1>
 </header>
+
+<div id="sidebar" style="float:right;width:40%">
+  <h3>STL Files</h3>
+  <ul>
+    <li><a href="#" onclick="thingiview.loadSTL('objects/cube.stl')">render</a> | <a href="objects/cube.stl">download</a> Cube</li>
+    <li><a href="#" onclick="thingiview.loadSTL('objects/groove_mount.stl')">render</a> | <a href="objects/groove_mount.stl">download</a> Groove Mount</li>
+    <li><a href="#" onclick="thingiview.loadSTL('objects/wade.stl')">render</a> | <a href="objects/wade.stl">download</a> Wade Extruder</li>
+  </ul>
+  
+  <h3>OBJ Files</h3>
+  <ul>
+    <li></li>
+  </ul>
+</div>
 
 <p>
   <input onclick="thingiview.cameraView('top');" type="button" value="Top" /> 
@@ -41,12 +55,14 @@
   <input onclick="thingiview.toggleRotate();" type="button" value="Toggle Rotation" />
 </p>
 
-<div id="viewer" style="width:400px;height:400px"></div>
+<div id="viewer" style="width:50%;height:400px"></div>
 
 <p>
   <input onclick="thingiview.objectMaterial('wireframe');" type="button" value="Wireframe" /> 
   <input onclick="thingiview.objectMaterial('solid');" type="button" value="Solid" />
 </p>
+
+
 
 <footer>
   <nav>
