@@ -16,10 +16,16 @@
     window.onload = function() {
       thingiview = new Thingiview("viewer");
       
+      // thingiview.setShowPlane(true);
+      // thingiview.setBackgroundColor('#ffffff');
+      // thingiview.setObjectMaterial('solid');
+      // thingiview.setObjectColor(0x0000aa);
+      
       thingiview.initScene();
+      
       thingiview.loadSTL("objects/cube.stl");
       
-      thingiview.toggleRotate();
+      thingiview.setRotation(true);
     }
   </script>
 </head>
@@ -30,44 +36,63 @@
 </header>
 
 <div id="sidebar" style="float:right;width:40%">
-  <h3>STL Files</h3>
+  <h3>ASCII STL Files</h3>
   <ul>
     <li><a href="#" onclick="thingiview.loadSTL('objects/cube.stl')">render</a> | <a href="objects/cube.stl">download</a> Cube</li>
     <li><a href="#" onclick="thingiview.loadSTL('objects/groove_mount.stl')">render</a> | <a href="objects/groove_mount.stl">download</a> Groove Mount</li>
     <li><a href="#" onclick="thingiview.loadSTL('objects/wade.stl')">render</a> | <a href="objects/wade.stl">download</a> Wade Extruder</li>
+    <li><a href="#" onclick="thingiview.loadSTL('objects/tree.stl')">render</a> | <a href="objects/tree.stl">download</a> Tree</li>
+    <li><a href="#" onclick="thingiview.loadSTL('objects/mbotplate1.stl')">render</a> | <a href="objects/mbotplate1.stl">download</a> Prusa Plate 1 (big)</li>
+    <li><a href="#" onclick="thingiview.loadSTL('objects/mbotplate2.stl')">render</a> | <a href="objects/mbotplate2.stl">download</a> Prusa Plate 2</li>
+    <li><a href="#" onclick="thingiview.loadSTL('objects/triangle.stl')">render</a> | <a href="objects/triangle.stl">download</a> Triangle (huge)</li>
+  </ul>
+  
+  <h3>BINARY STL Files</h3>
+  <ul>
+    <li><a href="#" onclick="thingiview.loadSTL('objects/walt.stl')">render</a> | <a href="objects/walt.stl">download</a> Walt (huge)</li>
   </ul>
   
   <h3>OBJ Files</h3>
   <ul>
-    <li></li>
+    <li><a href="#" onclick="thingiview.loadOBJ('objects/cube.obj')">render</a> | <a href="objects/cube.obj">download</a> Cube</li>
+  </ul>
+  
+  <h3>Todo</h3>
+  <ul>
+    <li>binary stl support</li>
+    <li>obj support</li>
+    <li>progress spinner so there's feedback when loading something big</li>
+    <li>breakup loading into chunks so javascript doesn't think it's unresponsive on large models</li>
+    <li>optimize three.js so large models are smoother?</li>
   </ul>
 </div>
 
 <p>
-  <input onclick="thingiview.cameraView('top');" type="button" value="Top" /> 
-  <input onclick="thingiview.cameraView('side');" type="button" value="Side" /> 
-  <input onclick="thingiview.cameraView('bottom');" type="button" value="Bottom" /> 
-  <input onclick="thingiview.cameraView('diagonal');" type="button" value="Diagonal" /> 
+  <input onclick="thingiview.setCameraView('top');" type="button" value="Top" /> 
+  <input onclick="thingiview.setCameraView('side');" type="button" value="Side" /> 
+  <input onclick="thingiview.setCameraView('bottom');" type="button" value="Bottom" /> 
+  <input onclick="thingiview.setCameraView('diagonal');" type="button" value="Diagonal" /> 
  
-  <input onclick="thingiview.cameraZoom(5);" type="button" value="Zoom +" /> 
-  <input onclick="thingiview.cameraZoom(-5);" type="button" value="Zoom -" /> 
+  <input onclick="thingiview.setCameraZoom(5);" type="button" value="Zoom +" /> 
+  <input onclick="thingiview.setCameraZoom(-5);" type="button" value="Zoom -" /> 
  
-  <input onclick="thingiview.toggleRotate();" type="button" value="Toggle Rotation" />
+  Rotation: <input onclick="thingiview.setRotation(true);" type="button" value="on" /> | <input onclick="thingiview.setRotation(false);" type="button" value="off" />
 </p>
 
 <div id="viewer" style="width:50%;height:400px"></div>
 
 <p>
-  <input onclick="thingiview.objectMaterial('wireframe');" type="button" value="Wireframe" /> 
-  <input onclick="thingiview.objectMaterial('solid');" type="button" value="Solid" />
+  <input onclick="thingiview.setObjectMaterial('wireframe');" type="button" value="Wireframe" /> 
+  <input onclick="thingiview.setObjectMaterial('solid');" type="button" value="Solid" />
 </p>
 
-
+<p>
+  Panel: <a href="#" onclick="thingiview.setShowPlane(false)">Hide</a> | <a href="#" onclick="thingiview.setShowPlane(true)">Show</a><br/>
+  Background Color: <a href="#" onclick="thingiview.setBackgroundColor('#606060')">Gray</a> | <a href="#" onclick="thingiview.setBackgroundColor('#ffffff')">White</a> | <a href="#" onclick="thingiview.setBackgroundColor('#000000')">Black</a><br/>
+  Object Color: <a href="#" onclick="thingiview.setObjectColor(0xffffff)">White</a> | <a href="#" onclick="thingiview.setObjectColor(0xaa0000)">Red</a> | <a href="#" onclick="thingiview.setObjectColor(0xCDFECD)">Green</a> | <a href="#" onclick="thingiview.setObjectColor(0xC0D8F0)">Blue</a><br/>
+</p>
 
 <footer>
-  <nav>
-    <a href="index.html">&larr; Examples</a>
-  </nav>
 </footer>
 
 </body>
