@@ -410,6 +410,7 @@ Thingiview = function(containerId) {
         object = new THREE.Mesh(geometry, new THREE.MeshColorFillMaterial(objectColor));
       }
 
+      object.overDraw = true;
       object.updateMatrix();
   		scene.addObject(object);
     
@@ -419,29 +420,48 @@ Thingiview = function(containerId) {
     }
   }
 
+  // Code from https://developer.mozilla.org/En/Using_XMLHttpRequest#Receiving_binary_data
+  function load_binary_resource(url) {
+  	var req = new XMLHttpRequest();
+  	req.open('GET', url, false);
+  	// The following line says we want to receive data as Binary and not as Unicode
+  	req.overrideMimeType('text/plain; charset=x-user-defined');
+  	req.send(null);
+  	if (req.status != 200) return '';
+  	return req.responseText;
+  }
+
   this.loadSTL = function(url) {
-    BinaryAjax(
-      url,
-      function(http) {
-        var mime = http.getResponseHeader("Content-Type");
-        // console.log('mime type: ' + mime);
-        var res = http.binaryResponse;
+    var file = load_binary_resource(url);
+    var reader = new BinaryReader(file);
+    if (reader.readString(5) == "solid") {
+      scope.loadSTLString(file);
+    } else {
+      scope.loadSTLBinary(reader);
+    }
 
-        // console.log(typeof res.getRawData());
-
-        rawdata = res.getRawData();
-        
-        if (rawdata.indexOf('solid') == 0) {
-          // console.log("ascii");
-          scope.loadSTLString(rawdata);
-        } else {
-          // console.log("binary");
-          scope.loadSTLBinary(rawdata);
-        }
-      },
-      null,
-      null      
-    )
+    // BinaryAjax(
+    //   url,
+    //   function(http) {
+    //     var mime = http.getResponseHeader("Content-Type");
+    //     // console.log('mime type: ' + mime);
+    //     var res = http.binaryResponse;
+    // 
+    //     // console.log(typeof res.getRawData());
+    // 
+    //     rawdata = res.getRawData();
+    //     
+    //     if (rawdata.indexOf('solid') == 0) {
+    //       // console.log("ascii");
+    //       scope.loadSTLString(rawdata);
+    //     } else {
+    //       // console.log("binary");
+    //       scope.loadSTLBinary(res);
+    //     }
+    //   },
+    //   null,
+    //   null      
+    // )
   }
 
   this.loadOBJ = function(url) {
@@ -464,38 +484,23 @@ Thingiview = function(containerId) {
   }
 
   this.loadSTLString = function(STLString) {
-    // console.log("STLString: \n" + STLString);
-
     scene.removeObject(object);
 
-    geometry = new STLGeometry(STLString);
+    var STLArray = ParseSTLString(STLString);
+
+    geometry = new STLGeometry(STLArray);
 
     loadObjectGeometry();
-
-    //     // rand = Math.random() * 0.5;
-    //     // for (var i = 0; i < geometry.faces.length; i++) {
-    //     //       geometry.faces[i].color.setRGBA(Math.random() * 0.5, Math.random() * 0.5 + 0.5, 1, 1);
-    //     //       // geometry.faces[i].color.setRGBA(rand, rand + 0.5, 1, 1);
-    //     // }
-    // 
-    //     // object = new THREE.Mesh(geometry, new THREE.MeshFaceColorFillMaterial());
-    //     object = new THREE.Mesh(geometry, new THREE.MeshColorFillMaterial(0xffffff));
-    //     // object = new THREE.Mesh(geometry, new THREE.MeshFaceColorFillMaterial());
-    //     // object.doubleSided = true;
-    //     // object.overDraw = true;
-    //     object.updateMatrix();
-    // scene.addObject(object);
-    // 
-    //     // infoMessage.innerHTML = 'Finished Loading ' + geometry.faces.length + ' faces';
-    //     // console.log('Finished Loading ' + geometry.faces.length + ' faces');
-    // 
-    //     targetRotation = 0;
-    // 
-    //     sceneLoop();
   }
 
-  this.loadSTLBinary = function(STLString) {
-    alert('not implemented')
+  this.loadSTLBinary = function(STLBinary) {
+    scene.removeObject(object);
+
+    var STLArray = ParseSTLBinary(STLBinary);
+
+    geometry = new STLGeometry(STLArray);
+
+    loadObjectGeometry();
   }
   
   this.loadOBJString = function(OBJString) {
@@ -503,15 +508,14 @@ Thingiview = function(containerId) {
   }
 };
 
-var STLGeometry = function(STLString) {
+var STLGeometry = function(STLArray) {
 	THREE.Geometry.call(this);
 
 	var scope = this;
 
-  var STLInfo  = ParseSTL(STLString);
-  var vertexes = STLInfo[0];
-  var normals  = STLInfo[1];
-  var faces    = STLInfo[2];
+  var vertexes = STLArray[0];
+  var normals  = STLArray[1];
+  var faces    = STLArray[2];
 
   for (var i=0; i<vertexes.length; i++) {
     v(vertexes[i][0], vertexes[i][1], vertexes[i][2]);
@@ -555,8 +559,89 @@ Array.prototype.myIndexOf = function(searchstring, indexstart) {
 	return result;
 };
 
+function ParseSTLBinary(STLBinary) {
+  var vertexes  = [];
+  var normals   = [];
+  var faces     = [];
+  
+  var face_vertexes = [];
+
+  // header = STLBinary.getStringAt(0, 80);
+  STLBinary.seek(0);
+  header = STLBinary.readString(80);
+  console.log("header = '" + header + "'");
+  
+  // count = STLBinary.getShortAt(80);
+  // STLBinary.seek(80);
+  count = STLBinary.readUInt32();
+  console.log("number of triangles = " + count);
+  // count = 10000;
+
+  for (var i = 0; i < count; i++) {
+    var start = 81 + (i * 13);
+    
+    var normal = [];
+    for (var x = 0; x < 3; x++) {
+      // STLBinary.seek(start + x);
+      normal.push(STLBinary.readFloat());
+    }
+    normals.push(normal);
+    // console.log("normal = " + normal);
+    
+    for (var x = 0; x < 3; x++) {
+      var vertex_start = (start + 3) + (x * 3)
+
+      var vertex = [];
+      for (var y = 0; y < 3; y++) {
+        // STLBinary.seek(vertex_start + y);
+        vertex.push(STLBinary.readFloat());
+      }
+      
+      if (vertexes.myIndexOf(vertex) == -1) {
+        vertexes.push(vertex);
+        // console.log("vertex = " + vertex);
+      }
+
+      if (face_vertexes[i] == undefined) {
+        face_vertexes[i] = [];
+      }
+      face_vertexes[i].push(vertex);
+      
+      // vertexes.push(vertex);
+      // console.log("vertex = " + vertex);
+    }
+    
+    // STLBinary.seek(start + 13);
+    attribute = STLBinary.readUInt16();
+    // console.log("attribute byte count = " + attribute);
+  }
+
+  console.log("size = " + STLBinary.getSize());
+  console.log("position = " + STLBinary.getPosition());
+  
+  for (var i=0; i<face_vertexes.length; i++) {
+    // console.log("face vertex " + i + " = " + face_vertexes[i]);
+    
+    if (faces[i] == undefined) {
+      faces[i] = [];
+    }
+  
+    for (var fvi=0; fvi<face_vertexes[i].length; fvi++) {
+      // console.log(i + " looking for " + face_vertexes[i][fvi])
+      faces[i].push(vertexes.myIndexOf(face_vertexes[i][fvi]))
+      // console.log("found " + vertexes.indexOf(face_vertexes[i][fvi]))
+    }
+  
+    // for material
+    faces[i].push(0);
+  }
+  
+  return [vertexes, normals, faces];
+  // return[[],[],[]];
+}
+
 // build stl's vertex and face arrays
-function ParseSTL(STLString) {
+function ParseSTLString(STLString) {
   var vertexes  = [];
   var normals   = [];
   var faces     = [];

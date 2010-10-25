@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="en" class="no-js">
 <head>
-  <title>Thingiview Examples - STL - Cube</title>
+  <title>Thingiview Examples</title>
 
   <meta charset="utf-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
@@ -9,7 +9,7 @@
   <script src="../javascripts/Three.js"></script>
   <script src="../javascripts/stats.js"></script>
   <script src="../javascripts/plane.js"></script>
-  <script src="../javascripts/binaryajax.js"></script>
+  <script src="../javascripts/binaryReader.js"></script>
   <script src="../javascripts/thingiview.js"></script>
   
   <script>
@@ -38,7 +38,7 @@
 <div id="sidebar" style="float:right;width:40%">
   <h3>ASCII STL Files</h3>
   <ul>
-    <li><a href="#" onclick="thingiview.loadSTL('objects/cube.stl')">render</a> | <a href="objects/cube.stl">download</a> Cube</li>
+    <li><a href="#" onclick="thingiview.loadSTL('objects/cube.stl')">render</a> | <a href="objects/cube.stl">download</a> Cube with hole</li>
     <li><a href="#" onclick="thingiview.loadSTL('objects/groove_mount.stl')">render</a> | <a href="objects/groove_mount.stl">download</a> Groove Mount</li>
     <li><a href="#" onclick="thingiview.loadSTL('objects/wade.stl')">render</a> | <a href="objects/wade.stl">download</a> Wade Extruder</li>
     <li><a href="#" onclick="thingiview.loadSTL('objects/tree.stl')">render</a> | <a href="objects/tree.stl">download</a> Tree</li>
@@ -49,6 +49,7 @@
   
   <h3>BINARY STL Files</h3>
   <ul>
+    <li><a href="#" onclick="thingiview.loadSTL('objects/cube_binary.stl')">render</a> | <a href="objects/cube_binary.stl">download</a> Cube with hole</li>
     <li><a href="#" onclick="thingiview.loadSTL('objects/walt.stl')">render</a> | <a href="objects/walt.stl">download</a> Walt (huge)</li>
   </ul>
   
@@ -59,7 +60,6 @@
   
   <h3>Todo</h3>
   <ul>
-    <li>binary stl support</li>
     <li>obj support</li>
     <li>progress spinner so there's feedback when loading something big</li>
     <li>breakup loading into chunks so javascript doesn't think it's unresponsive on large models</li>
