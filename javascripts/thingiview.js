@@ -410,7 +410,7 @@ Thingiview = function(containerId) {
         object = new THREE.Mesh(geometry, new THREE.MeshColorFillMaterial(objectColor));
       }
 
-      object.overDraw = true;
+      object.overdraw = true;
       object.updateMatrix();
   		scene.addObject(object);
     
