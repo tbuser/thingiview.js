@@ -465,22 +465,8 @@ Thingiview = function(containerId) {
   }
 
   this.loadOBJ = function(url) {
-    BinaryAjax(
-      url,
-      function(http) {
-        var mime = http.getResponseHeader("Content-Type");
-        // console.log('mime type: ' + mime);
-        var res = http.binaryResponse;
-
-        // console.log(typeof res.getRawData());
-
-        rawdata = res.getRawData();
-        
-        scope.loadOBJString(rawdata);
-      },
-      null,
-      null      
-    )
+    var file = load_binary_resource(url);
+    scope.loadOBJString(file);
   }
 
   this.loadSTLString = function(STLString) {
@@ -504,7 +490,13 @@ Thingiview = function(containerId) {
   }
   
   this.loadOBJString = function(OBJString) {
-    alert('not implemented')
+    scene.removeObject(object);
+    
+    var STLArray = ParseOBJString(OBJString);
+    
+    geometry = new STLGeometry(STLArray);
+
+    loadObjectGeometry();
   }
 };
 
@@ -516,6 +508,8 @@ var STLGeometry = function(STLArray) {
   var vertexes = STLArray[0];
   var normals  = STLArray[1];
   var faces    = STLArray[2];
+
+  console.log("vertexes: " + vertexes.length + " normals: " + normals.length + " faces: " + faces.length);
 
   for (var i=0; i<vertexes.length; i++) {
     v(vertexes[i][0], vertexes[i][1], vertexes[i][2]);
@@ -569,12 +563,12 @@ function ParseSTLBinary(STLBinary) {
   // header = STLBinary.getStringAt(0, 80);
   STLBinary.seek(0);
   header = STLBinary.readString(80);
-  console.log("header = '" + header + "'");
+  // console.log("header = '" + header + "'");
   
   // count = STLBinary.getShortAt(80);
   // STLBinary.seek(80);
   count = STLBinary.readUInt32();
-  console.log("number of triangles = " + count);
+  // console.log("number of triangles = " + count);
   // count = 10000;
 
   for (var i = 0; i < count; i++) {
@@ -616,8 +610,8 @@ function ParseSTLBinary(STLBinary) {
     // console.log("attribute byte count = " + attribute);
   }
 
-  console.log("size = " + STLBinary.getSize());
-  console.log("position = " + STLBinary.getPosition());
+  // console.log("size = " + STLBinary.getSize());
+  // console.log("position = " + STLBinary.getPosition());
   
   for (var i=0; i<face_vertexes.length; i++) {
     // console.log("face vertex " + i + " = " + face_vertexes[i]);
@@ -637,7 +631,6 @@ function ParseSTLBinary(STLBinary) {
   }
   
   return [vertexes, normals, faces];
-  // return[[],[],[]];
 }
 
 // build stl's vertex and face arrays
@@ -725,5 +718,33 @@ function ParseSTLString(STLString) {
   // document.getElementById('debug').innerHTML = STLString;
   
   // console.log("finished parsing stl")
+  return [vertexes, normals, faces];
+}
+
+function ParseOBJString(OBJString) {
+  var vertexes  = [];
+  var normals   = [];
+  var faces     = [];
+
+  var lines = OBJString.split("\n");
+  
+  for (var i=0; i<lines.length; i++) {
+    line_parts = lines[i].replace(/\s+/g, " ").split(" ");
+    
+    if (line_parts[0] == "v") {
+      var vertex = [parseFloat(line_parts[1]), parseFloat(line_parts[2]), parseFloat(line_parts[3])];
+      vertexes.push(vertex);
+      // console.log("vertex: " + vertex);
+    } else if (line_parts[0] == "vn") {
+      var normal = [parseFloat(line_parts[1]), parseFloat(line_parts[2]), parseFloat(line_parts[3])];
+      normals.push(normal);
+      // console.log("normal: " + normal);
+    } else if (line_parts[0] == "f") {
+      var face = [parseFloat(line_parts[1].split("/")[0]), parseFloat(line_parts[2].split("/")[0]), parseFloat(line_parts[3].split("/")[0]), 0];
+      faces.push(face)
+      // console.log("face: " + face);
+    }
+  }
+  
   return [vertexes, normals, faces];
 }
