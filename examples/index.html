@@ -11,7 +11,7 @@
   <script src="../javascripts/plane.js"></script>
   <script src="../javascripts/binaryReader.js"></script>
   <script src="../javascripts/thingiview.js"></script>
-  
+
   <script>
     window.onload = function() {
       thingiview = new Thingiview("viewer");
@@ -20,6 +20,7 @@
       // thingiview.setBackgroundColor('#ffffff');
       // thingiview.setObjectMaterial('solid');
       // thingiview.setObjectColor(0x0000aa);
+      thingiview.setObjectColor(0xC0D8F0);
       
       thingiview.initScene();
       
@@ -32,7 +33,7 @@
 <body>
 
 <header>
-  <h1>Thingiview Examples</h1>
+  <h1><a href="http://github.com/tbuser/thingiview.js">Thingiview.js</a> Examples</h1>
 </header>
 
 <div id="sidebar" style="float:right;width:40%">
@@ -50,18 +51,21 @@
   <h3>BINARY STL Files</h3>
   <ul>
     <li><a href="#" onclick="thingiview.loadSTL('objects/cube_binary.stl')">render</a> | <a href="objects/cube_binary.stl">download</a> Cube with hole</li>
+    <li><a href="#" onclick="thingiview.loadSTL('objects/vader.stl')">render</a> | <a href="objects/vader.stl">download</a> Darth Vader</li>
     <li><a href="#" onclick="thingiview.loadSTL('objects/shell.stl')">render</a> | <a href="objects/shell.stl">download</a> Shell (big and buggy)</li>
     <li><a href="#" onclick="thingiview.loadSTL('objects/walt.stl')">render</a> | <a href="objects/walt.stl">download</a> Walt (huge)</li>
+    <li><a href="#" onclick="thingiview.loadSTL('objects/dragonheadfixed.stl')">render</a> | <a href="objects/dragonheadfixed.stl">download</a> Dragon! (huge)</li>
   </ul>
   
   <h3>OBJ Files</h3>
   <ul>
     <li><a href="#" onclick="thingiview.loadOBJ('objects/cube.obj')">render</a> | <a href="objects/cube.obj">download</a> Cube</li>
+    <li><a href="#" onclick="thingiview.loadOBJ('objects/teddy.obj')">render</a> | <a href="objects/teddy.obj">download</a> Teddy</li>
+    <li><a href="#" onclick="thingiview.loadOBJ('objects/teapot.obj')">render</a> | <a href="objects/teapot.obj">download</a> Tea Pot (buggy)</li>
   </ul>
   
   <h3>Todo</h3>
   <ul>
-    <li>obj support</li>
     <li>progress spinner so there's feedback when loading something big</li>
     <li>breakup loading into chunks so javascript doesn't think it's unresponsive on large models</li>
     <li>optimize three.js so large models are smoother?</li>
@@ -88,7 +92,7 @@
 </p>
 
 <p>
-  Panel: <a href="#" onclick="thingiview.setShowPlane(false)">Hide</a> | <a href="#" onclick="thingiview.setShowPlane(true)">Show</a><br/>
+  Plane: <a href="#" onclick="thingiview.setShowPlane(false)">Hide</a> | <a href="#" onclick="thingiview.setShowPlane(true)">Show</a><br/>
   Background Color: <a href="#" onclick="thingiview.setBackgroundColor('#606060')">Gray</a> | <a href="#" onclick="thingiview.setBackgroundColor('#ffffff')">White</a> | <a href="#" onclick="thingiview.setBackgroundColor('#000000')">Black</a><br/>
   Object Color: <a href="#" onclick="thingiview.setObjectColor(0xffffff)">White</a> | <a href="#" onclick="thingiview.setObjectColor(0xaa0000)">Red</a> | <a href="#" onclick="thingiview.setObjectColor(0xCDFECD)">Green</a> | <a href="#" onclick="thingiview.setObjectColor(0xC0D8F0)">Blue</a><br/>
 </p>

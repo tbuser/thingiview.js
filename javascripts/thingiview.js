@@ -509,7 +509,7 @@ var STLGeometry = function(STLArray) {
   var normals  = STLArray[1];
   var faces    = STLArray[2];
 
-  console.log("vertexes: " + vertexes.length + " normals: " + normals.length + " faces: " + faces.length);
+  // console.log("vertexes: " + vertexes.length + " normals: " + normals.length + " faces: " + faces.length);
 
   for (var i=0; i<vertexes.length; i++) {
     v(vertexes[i][0], vertexes[i][1], vertexes[i][2]);
@@ -728,6 +728,8 @@ function ParseOBJString(OBJString) {
 
   var lines = OBJString.split("\n");
   
+  var normal_position = 0;
+  
   for (var i=0; i<lines.length; i++) {
     line_parts = lines[i].replace(/\s+/g, " ").split(" ");
     
@@ -736,11 +738,17 @@ function ParseOBJString(OBJString) {
       vertexes.push(vertex);
       // console.log("vertex: " + vertex);
     } else if (line_parts[0] == "vn") {
-      var normal = [parseFloat(line_parts[1]), parseFloat(line_parts[2]), parseFloat(line_parts[3])];
-      normals.push(normal);
-      // console.log("normal: " + normal);
+      if (normal_position == 0) {
+        var normal = [parseFloat(line_parts[1]), parseFloat(line_parts[2]), parseFloat(line_parts[3])];
+        normals.push(normal);
+        // console.log("normal: " + normal);
+      }
+      normal_position++;
+      if (normal_position > 2) {
+        normal_position = 0;
+      }
     } else if (line_parts[0] == "f") {
-      var face = [parseFloat(line_parts[1].split("/")[0]), parseFloat(line_parts[2].split("/")[0]), parseFloat(line_parts[3].split("/")[0]), 0];
+      var face = [parseFloat(line_parts[1].split("/")[0])-1, parseFloat(line_parts[2].split("/")[0])-1, parseFloat(line_parts[3].split("/")[0]-1), 0];
       faces.push(face)
       // console.log("face: " + face);
     }
