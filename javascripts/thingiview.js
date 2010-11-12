@@ -4,7 +4,7 @@ Thingiview = function(containerId) {
   this.containerId  = containerId;
   var container     = document.getElementById(containerId);
   
-  var stats    = null;
+  // var stats    = null;
   var camera   = null;
   var scene    = null;
   var renderer = null;
@@ -15,10 +15,16 @@ Thingiview = function(containerId) {
   var directionalLight = null;
   var pointLight       = null;
   
-  var targetRotation             = 0;
-  var targetRotationOnMouseDown  = 0;
-  var mouseX                     = 0;
-  var mouseXOnMouseDown          = 0;
+  var targetXRotation             = 0;
+  var targetXRotationOnMouseDown  = 0;
+  var mouseX                      = 0;
+  var mouseXOnMouseDown           = 0;
+
+  var targetYRotation             = 0;
+  var targetYRotationOnMouseDown  = 0;
+  var mouseY                      = 0;
+  var mouseYOnMouseDown           = 0;
+
   var mouseDown                  = false;
   
   var windowHalfX = window.innerWidth / 2;
@@ -26,6 +32,7 @@ Thingiview = function(containerId) {
 
   var view         = null;
   var infoMessage  = null;
+  var progressBar  = null;
   
   var timer        = null;
   var rotateTimer  = null;
@@ -60,35 +67,10 @@ Thingiview = function(containerId) {
   	camera = new THREE.Camera(65, width/ height, 1, 1000);
   	scene  = new THREE.Scene();
 
-    // ambientLight = new THREE.AmbientLight(0x80ffff);
-    // scene.addLight(ambientLight);
-    // 
-    // directionalLight = new THREE.DirectionalLight(0xffff00);
-    // scene.addLight(directionalLight);
-
-    // ambientLight = new THREE.AmbientLight(Math.random() * 0x202020);
-    ambientLight = new THREE.AmbientLight(0x202020);
-    scene.addLight(ambientLight);
-
-    // directionalLight = new THREE.DirectionalLight( Math.random() * 0xffffff);
-    // directionalLight.position.x = Math.random() - 0.5;
-    // directionalLight.position.y = Math.random() - 0.5;
-    // directionalLight.position.z = Math.random() - 0.5;
-    directionalLight = new THREE.DirectionalLight(0xffffff);
-    // directionalLight = new THREE.DirectionalLight(0x0000ff);
-		directionalLight.position.x = 1;
-		directionalLight.position.y = 1;
-		directionalLight.position.z = 1;
-    directionalLight.position.normalize();
-		scene.addLight(directionalLight);
-
-    // pointLight = new THREE.PointLight(0xff0000, 1);
-    // scene.addLight(pointLight);
-
     testCanvas = document.createElement('canvas');
     try {
       if (testCanvas.getContext('experimental-webgl')) {
-        showPlane = false;
+        // showPlane = false;
         isWebGl = true;
         renderer = new THREE.WebGLRenderer();
       } else {
@@ -97,6 +79,76 @@ Thingiview = function(containerId) {
     } catch(e) {
       renderer = new THREE.CanvasRenderer();
     }
+
+    // ambientLight = new THREE.AmbientLight(0x80ffff);
+    // scene.addLight(ambientLight);
+    // 
+    // directionalLight = new THREE.DirectionalLight(0xffff00);
+    // scene.addLight(directionalLight);
+
+    // ambientLight = new THREE.AmbientLight(Math.random() * 0x202020);
+    if (!isWebGl) {
+      ambientLight = new THREE.AmbientLight(0x202020);
+      scene.addLight(ambientLight);
+    }
+    
+    // directionalLight = new THREE.DirectionalLight( Math.random() * 0xffffff);
+    // directionalLight.position.x = Math.random() - 0.5;
+    // directionalLight.position.y = Math.random() - 0.5;
+    // directionalLight.position.z = Math.random() - 0.5;
+    if (isWebGl) {
+      directionalLight = new THREE.DirectionalLight(0xffffff, 0.5);
+    } else {
+      directionalLight = new THREE.DirectionalLight(0xffffff, 1);
+    }
+    // directionalLight = new THREE.DirectionalLight(0x0000ff);
+		directionalLight.position.x = 1;
+		directionalLight.position.y = 1;
+		directionalLight.position.z = 2;
+    directionalLight.position.normalize();
+    scene.addLight(directionalLight);
+
+    pointLight1 = new THREE.PointLight(0xffffff, 0.2);
+    pointLight1.position.x = 0;
+    pointLight1.position.y = 50;
+    pointLight1.position.z = -10;
+    scene.addLight(pointLight1);
+
+    pointLight2 = new THREE.PointLight(0xffffff, 0.2);
+    pointLight2.position.x = 0;
+    pointLight2.position.y = -50;
+    pointLight2.position.z = 10;
+    scene.addLight(pointLight2);
+
+    // pointLight3 = new THREE.PointLight(0xffffff, 1);
+    // pointLight3.position.x = -50;
+    // pointLight3.position.y = 50;
+    // pointLight3.position.z = 0;
+    // scene.addLight(pointLight3);
+    // 
+    // pointLight4 = new THREE.PointLight(0xffffff, 1);
+    // pointLight4.position.x = -50;
+    // pointLight4.position.y = -50;
+    // pointLight4.position.z = 0;
+    // scene.addLight(pointLight4);
+
+    renderer.setSize(container.innerWidth, container.innerHeight);
+
+    progressBar = document.createElement('div');
+    progressBar.style.position = 'absolute';
+    progressBar.style.top = '0px';
+    progressBar.style.left = '0px';
+    // progressBar.style.width = '5%';
+    // progressBar.style.height = '10%';
+    progressBar.style.backgroundColor = 'red';
+    // progressBar.innerHTML = 'Testing................';
+    progressBar.style.padding = '5px';
+    // progressBar.style.fontSize = '20pt';
+    progressBar.style.display = 'none';
+    progressBar.style.overflow = 'visible';
+    progressBar.style.whiteSpace = 'nowrap';
+    progressBar.style.zIndex = 100;
+    container.appendChild(progressBar);
     
     // load a blank object
     // this.loadSTLString('');
@@ -112,10 +164,10 @@ Thingiview = function(containerId) {
     this.setCameraView(cameraView);
     this.setObjectMaterial(objectMaterial);
 
-  	stats = new Stats();
-  	stats.domElement.style.position  = 'absolute';
-  	stats.domElement.style.top       = '0px';
-  	container.appendChild(stats.domElement);
+    // stats = new Stats();
+    // stats.domElement.style.position  = 'absolute';
+    // stats.domElement.style.top       = '0px';
+    // container.appendChild(stats.domElement);
 
     // TODO: figure out how to get the render window to resize when window resizes
     // window.addEventListener('resize', onContainerResize(), false);
@@ -136,11 +188,12 @@ Thingiview = function(containerId) {
   	renderer.domElement.addEventListener('gesturechange',  onRendererGestureChange, false);
   }
 
+  // FIXME
   onContainerResize = function(event) {
     width  = parseFloat(document.defaultView.getComputedStyle(container,null).getPropertyValue('width'));
     height = parseFloat(document.defaultView.getComputedStyle(container,null).getPropertyValue('height'));
 
-    // console.log("resized width: " + width + ", height: " + height);
+    // log("resized width: " + width + ", height: " + height);
   
     if (renderer) {
       renderer.setSize(width, height);
@@ -164,10 +217,10 @@ Thingiview = function(containerId) {
 
     if (rolled > 0) {
       // up
-      scope.setCameraZoom(+5);
+      scope.setCameraZoom(+10);
     } else {
       // down
-      scope.setCameraZoom(-5);
+      scope.setCameraZoom(-10);
     }
   }
 
@@ -175,20 +228,24 @@ Thingiview = function(containerId) {
     event.preventDefault();
 
     if (event.scale > 1) {
-      scope.setCameraZoom(+5);
+      scope.setCameraZoom(+10);
     } else {
-      scope.setCameraZoom(-5);
+      scope.setCameraZoom(-10);
     }
   }
 
   onRendererMouseOver = function(event) {
-    // console.log("over");
-    targetRotation = object.rotation.z;
-    timer = setInterval(sceneLoop, 1000/60);
+    // targetRotation = object.rotation.z;
+    if (timer == null) {
+      timer = setInterval(sceneLoop, 1000/60);
+    }
   }
 
   onRendererMouseDown = function(event) {
-    // console.log("down");
+    // log("down");
+
+    event.preventDefault();
+
   	mouseDown = true;
   	event.preventDefault();
   	
@@ -196,45 +253,56 @@ Thingiview = function(containerId) {
     rotateTimer = null;
     
   	mouseXOnMouseDown = event.clientX - windowHalfX;
-  	targetRotationOnMouseDown = targetRotation;
+  	mouseYOnMouseDown = event.clientY - windowHalfY;
+  	targetXRotationOnMouseDown = targetXRotation;
+  	targetYRotationOnMouseDown = targetYRotation;
   }
 
   onRendererMouseMove = function(event) {
-    // console.log("move");
+    // log("move");
     if (mouseDown) {
   	  mouseX = event.clientX - windowHalfX;
-  	  targetRotation = targetRotationOnMouseDown + (mouseX - mouseXOnMouseDown) * 0.02;
+  	  targetXRotation = targetXRotationOnMouseDown + (mouseX - mouseXOnMouseDown) * 0.02;
+
+  	  mouseY = event.clientY - windowHalfY;
+  	  targetYRotation = targetYRotationOnMouseDown + (mouseY - mouseYOnMouseDown) * 0.02;
 	  }
   }
 
   onRendererMouseUp = function(event) {
-    // console.log("up");
+    // log("up");
     mouseDown = false;
   }
 
   onRendererMouseOut = function(event) {
-    // console.log("out");
+    // log("out");
     clearInterval(timer);
     timer = null;
-    targetRotation = object.rotation.z;
+    // targetRotation = object.rotation.z;
   }
 
   onRendererTouchStart = function(event) {
-    targetRotation = object.rotation.z;
+    targetXRotation = object.rotation.z;
+    targetYRotation = object.rotation.x;
+
     timer = setInterval(sceneLoop, 1000/60);
 
   	if (event.touches.length == 1) {
   		event.preventDefault();
 
   		mouseXOnMouseDown = event.touches[0].pageX - windowHalfX;
-  		targetRotationOnMouseDown = targetRotation;
+  		targetXRotationOnMouseDown = targetXRotation;
+
+  		mouseYOnMouseDown = event.touches[0].pageY - windowHalfY;
+  		targetYRotationOnMouseDown = targetYRotation;
   	}
   }
 
   onRendererTouchEnd = function(event) {
     clearInterval(timer);
     timer = null;
-    targetRotation = object.rotation.z;
+    targetXRotation = object.rotation.z;
+    targetYRotation = object.rotation.x;
   }
 
   onRendererTouchMove = function(event) {
@@ -242,12 +310,15 @@ Thingiview = function(containerId) {
   		event.preventDefault();
 
   		mouseX = event.touches[0].pageX - windowHalfX;
-  		targetRotation = targetRotationOnMouseDown + (mouseX - mouseXOnMouseDown) * 0.05;
+  		targetXRotation = targetXRotationOnMouseDown + (mouseX - mouseXOnMouseDown) * 0.05;
+
+  		mouseY = event.touches[0].pageY - windowHalfY;
+  		targetYRotation = targetYRotationOnMouseDown + (mouseY - mouseYOnMouseDown) * 0.05;
   	}
   }
 
   sceneLoop = function() {
-    if (stats && object) {
+    if (object) {
       // if (view == 'bottom') {
       //   if (showPlane) {
       //     plane.rotation.z = object.rotation.z -= (targetRotation + object.rotation.z) * 0.05;
@@ -262,34 +333,31 @@ Thingiview = function(containerId) {
       //   }
       // }
 
-      if (view == 'bottom') {
-        if (showPlane) {
-          plane.rotation.z = object.rotation.z -= (targetRotation + object.rotation.z) * 0.05;
-        } else {
-          object.rotation.z -= (targetRotation + object.rotation.z) * 0.05;
-        }
+      if (showPlane) {
+        plane.rotation.z = object.rotation.z = (targetXRotation - object.rotation.z) * 0.2;
+        plane.rotation.x = object.rotation.x = (targetYRotation - object.rotation.x) * 0.2;
       } else {
-        if (showPlane) {
-          plane.rotation.z = object.rotation.z += (targetRotation - object.rotation.z) * 0.05;
-        } else {
-          object.rotation.z += (targetRotation - object.rotation.z) * 0.05;
-        }
+        object.rotation.z = (targetXRotation - object.rotation.z) * 0.2;
+        object.rotation.x = (targetYRotation - object.rotation.x) * 0.2;
       }
+
+      // log(object.rotation.x);
 
       // camera.updateMatrix();
       // object.updateMatrix();
       
-      if (showPlane) {
+      // if (showPlane) {
         // plane.updateMatrix();
-      }
+      // }
 
     	renderer.render(scene, camera);
-    	stats.update();
+      // stats.update();
     }
   }
 
   rotateLoop = function() {
-    targetRotation += 0.01;
+    // targetRotation += 0.01;
+    targetXRotation += 0.1;
     sceneLoop();
   }
 
@@ -321,6 +389,21 @@ Thingiview = function(containerId) {
 
   this.setCameraView = function(dir) {
     cameraView = dir;
+
+    targetXRotation       = 0;
+    targetYRotation       = 0;
+
+    if (object) {
+      object.rotation.x = 0;
+      object.rotation.y = 0;
+      object.rotation.z = 0;
+    }
+
+    if (showPlane && object) {
+      plane.rotation.x = object.rotation.x;
+      plane.rotation.y = object.rotation.y;
+      plane.rotation.z = object.rotation.z;
+    }
     
     if (dir == 'top') {
       camera.position.y = 0;
@@ -331,14 +414,24 @@ Thingiview = function(containerId) {
         plane.flipSided = false;
       }
     } else if (dir == 'side') {
-      camera.position.y = 100;
-      camera.position.z = -0.1;
+      // camera.position.y = 100;
+      // camera.position.z = -0.1;
+      // camera.position.z = 10;
+      // camera.target.position.z = 50;
 
-      // camera.position.z = -100;
-      // camera.position.y = 100;
-      // camera.position.y = 100;
-      camera.position.z = 10;
-      camera.target.position.z = 50;
+      // if (object) {
+      //   object.rotation.x = -0.75;
+      // }
+      // 
+      // if (showPlane) {
+      //   plane.rotation.x = -0.75;
+      // }
+
+      camera.position.y = -70;
+      camera.position.z = 70;
+      targetYRotation = -4.5;
+
+      camera.target.position.z = 0;
       if (showPlane) {
         plane.flipSided = false;
       }
@@ -360,16 +453,12 @@ Thingiview = function(containerId) {
       }
     }
 
-    targetRotation     = 0;
+    mouseX            = targetXRotation;
+    mouseXOnMouseDown = targetXRotation;
     
-    if (object) {
-      object.rotation.z  = 0;
-    }
+    mouseY            = targetYRotation;
+    mouseYOnMouseDown = targetYRotation;
     
-    if (showPlane && object) {
-      plane.rotation.z = object.rotation.z;
-    }
-
     sceneLoop();
   }
 
@@ -381,7 +470,8 @@ Thingiview = function(containerId) {
     } else if (cameraView == 'bottom') {
       camera.position.z += factor;
     } else if (cameraView == 'side') {
-      camera.position.y -= factor;
+      camera.position.y += factor;
+      camera.position.z -= factor;
     } else {
       camera.position.y += factor;
       camera.position.z -= factor;
@@ -431,22 +521,39 @@ Thingiview = function(containerId) {
   }
 
   this.newWorker = function(cmd, param) {
+    clearInterval(rotateTimer);
+    rotateTimer = null;
+  	
     var worker = new Worker(scope.urlbase + '/thingiloader.js');
     
     worker.onmessage = function(event) {
       if (event.data.status == "complete") {
+        progressBar.innerHTML = 'Initializing geometry...';
         scene.removeObject(object);
         geometry = new STLGeometry(event.data.content);
         loadObjectGeometry();
+        progressBar.innerHTML = '';
+        progressBar.style.display = 'none';
+
+        clearInterval(rotateTimer);
+        rotateTimer = null;
+        rotateTimer = setInterval(rotateLoop, 1000/60);
       } else if (event.data.status == "progress") {
-        console.log(event.data.content);
+        progressBar.style.display = 'block';
+        progressBar.style.width = event.data.content;
+        log(event.data.content);
+      } else if (event.data.status == "message") {
+        progressBar.style.display = 'block';
+        progressBar.innerHTML = event.data.content;
+        log(event.data.content);
       } else {
-        console.log('Unknown Worker Message: ' + event.data);
+        alert('Error: ' + event.data);
+        log('Unknown Worker Message: ' + event.data);
       }
     }
 
     worker.onerror = function(error) {
-      console.log(error);
+      log(error);
       error.preventDefault();
     }
 
@@ -468,16 +575,23 @@ Thingiview = function(containerId) {
       scene.removeObject(object);
     
       if (objectMaterial == 'wireframe') {
-        object = new THREE.Mesh(geometry, new THREE.MeshColorStrokeMaterial(objectColor, 1, 1));
+        material = new THREE.MeshColorStrokeMaterial(objectColor, 1, 1);
       } else {
-        object = new THREE.Mesh(geometry, new THREE.MeshColorFillMaterial(objectColor));
+        if (isWebGl) {
+          material = new THREE.MeshPhongMaterial(objectColor, objectColor, 0xffffff, 50, 1.0);
+        } else {
+          material = new THREE.MeshColorFillMaterial(objectColor);
+        }
       }
 
+      object = new THREE.Mesh(geometry, material);
+
       object.overdraw = true;
-      object.updateMatrix();
+      // object.updateMatrix();
   		scene.addObject(object);
     
-      targetRotation = 0;
+      targetXRotation = 0;
+      targetYRotation = 0;
     
       sceneLoop();
     }
@@ -516,3 +630,9 @@ var STLGeometry = function(STLArray) {
 
 STLGeometry.prototype = new THREE.Geometry();
 STLGeometry.prototype.constructor = STLGeometry;
+
+function log(msg) {
+  if (this.console) {
+    console.log(msg);
+  }
+}

@@ -33,7 +33,7 @@ function load_binary_resource(url) {
 }
 
 function loadSTL(url) {
-  postMessage({'status':'progress', 'content':'Downloading ' + url});  
+  postMessage({'status':'message', 'content':'Downloading ' + url});  
   var file = load_binary_resource(url);
   var reader = new BinaryReader(file);
   if (reader.readString(5) == "solid") {
@@ -44,23 +44,23 @@ function loadSTL(url) {
 }
 
 function loadOBJ(url) {
-  postMessage({'status':'progress', 'content':'Downloading ' + url});  
+  postMessage({'status':'message', 'content':'Downloading ' + url});  
   var file = load_binary_resource(url);
   loadOBJString(file);
 }
 
 function loadSTLString(STLString) {
-  postMessage({'status':'progress', 'content':'Parsing STL String...'});  
+  postMessage({'status':'message', 'content':'Parsing STL String...'});  
   postMessage({'status':'complete', 'content':ParseSTLString(STLString)});
 }
 
 function loadSTLBinary(STLBinary) {
-  postMessage({'status':'progress', 'content':'Parsing STL Binary...'});
+  postMessage({'status':'message', 'content':'Parsing STL Binary...'});
   postMessage({'status':'complete', 'content':ParseSTLBinary(STLBinary)});
 }
 
 function loadOBJString(OBJString) {
-  postMessage({'status':'progress', 'content':'Parsing OBJ String...'});
+  postMessage({'status':'message', 'content':'Parsing OBJ String...'});
   postMessage({'status':'complete', 'content':ParseOBJString(OBJString)});
 }
 
@@ -150,7 +150,20 @@ function ParseSTLBinary(STLBinary) {
   // console.log("size = " + STLBinary.getSize());
   // console.log("position = " + STLBinary.getPosition());
   
+  var percent = 0;
+  var last_percent = 0;
+
+  // console.log("calculating faces")
+  postMessage({'status':'message', 'content':'Calculating faces...'});
+  
   for (var i=0; i<face_vertexes.length; i++) {
+    percent = parseInt(i / face_vertexes.length * 100);
+
+    if (percent % 5 == 0 && percent != last_percent) {
+      postMessage({'status':'progress', 'content':percent + '%'});
+      last_percent = percent;
+    }
+    
     // console.log("face vertex " + i + " = " + face_vertexes[i]);
     
     if (faces[i] == undefined) {
@@ -199,7 +212,18 @@ function ParseSTLString(STLString) {
 
   var points = STLString.split(" ");
 
+  var percent = 0;
+  var last_percent = 0;
+
+  postMessage({'status':'message', 'content':'Parsing vertexes...'});
   for (var i=0; i<points.length/12-1; i++) {
+    percent = parseInt(i / (points.length/12-1) * 100);
+
+    if (percent % 5 == 0 && percent != last_percent) {
+      postMessage({'status':'progress', 'content':percent + '%'});
+      last_percent = percent;
+    }
+    
     normal = [parseFloat(points[block_start]), parseFloat(points[block_start+1]), parseFloat(points[block_start+2])]
     normals.push(normal)
     // console.log(normal)
@@ -221,8 +245,19 @@ function ParseSTLString(STLString) {
     block_start = block_start + 12;
   }
 
+  var percent = 0;
+  var last_percent = 0;
+
   // console.log("calculating faces")
+  postMessage({'status':'message', 'content':'Calculating faces...'});
   for (var i=0; i<face_vertexes.length; i++) {
+    percent = parseInt(i / face_vertexes.length * 100);
+
+    if (percent % 5 == 0 && percent != last_percent) {
+      postMessage({'status':'progress', 'content':percent + '%'});
+      last_percent = percent;
+    }
+
     // console.log("face vertex " + i + " = " + face_vertexes[i]);
     
     if (faces[i] == undefined) {
@@ -267,7 +302,17 @@ function ParseOBJString(OBJString) {
   
   var normal_position = 0;
   
+  var percent = 0;
+  var last_percent = 0;
+  
   for (var i=0; i<lines.length; i++) {
+    percent = parseInt(i / lines.length * 100);
+
+    if (percent % 5 == 0 && percent != last_percent) {
+      postMessage({'status':'progress', 'content':percent + '%'});
+      last_percent = percent;
+    }
+    
     line_parts = lines[i].replace(/\s+/g, " ").split(" ");
     
     if (line_parts[0] == "v") {

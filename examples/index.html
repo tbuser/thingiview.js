@@ -7,7 +7,6 @@
   <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
   
   <script src="../javascripts/Three.js"></script>
-  <script src="../javascripts/stats.js"></script>
   <script src="../javascripts/plane.js"></script>
   <script src="../javascripts/thingiview.js"></script>
 
@@ -66,10 +65,7 @@
   
   <h3>Todo</h3>
   <ul>
-    <li>now that things load in a web worker thread instead of timing out, I need to display progress as models load (note: all models on this page now render... if you wait long enough)</li>
-    <li>detect if a model is large and user doesn't have webgl and then display a warning that it's going to be SLOW</li>
-    <li>figure out why latest Three.js has caused webgl rendering to slow down so badly!</li>
-    <li>make a more free-form rotation so you can spin around all axis instead of just x</li>
+    <li>detect if model is large and they don't have webgl and ask if they're sure cause it'll be slow</li>
     <li>figure out a way to make it into a widget that people can embed on another site</li>
   </ul>
 </div>
