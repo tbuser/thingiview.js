@@ -26,6 +26,7 @@ Thingiview = function(containerId) {
   var mouseYOnMouseDown           = 0;
 
   var mouseDown                  = false;
+  var mouseOver                  = false;
   
   var windowHalfX = window.innerWidth / 2;
   var windowHalfY = window.innerHeight / 2
@@ -173,11 +174,13 @@ Thingiview = function(containerId) {
     // window.addEventListener('resize', onContainerResize(), false);
     // container.addEventListener('resize', onContainerResize(), false);
 
-  	renderer.domElement.addEventListener('mousemove',      onRendererMouseMove,     false);    
+    // renderer.domElement.addEventListener('mousemove',      onRendererMouseMove,     false);    
+  	window.addEventListener('mousemove',      onRendererMouseMove,     false);    
     renderer.domElement.addEventListener('mouseover',      onRendererMouseOver,     false);
     renderer.domElement.addEventListener('mouseout',       onRendererMouseOut,      false);
   	renderer.domElement.addEventListener('mousedown',      onRendererMouseDown,     false);
-    renderer.domElement.addEventListener('mouseup',        onRendererMouseUp,       false);
+    // renderer.domElement.addEventListener('mouseup',        onRendererMouseUp,       false);
+    window.addEventListener('mouseup',        onRendererMouseUp,       false);
 
   	renderer.domElement.addEventListener('touchstart',     onRendererTouchStart,    false);
   	renderer.domElement.addEventListener('touchend',       onRendererTouchEnd,      false);
@@ -235,6 +238,7 @@ Thingiview = function(containerId) {
   }
 
   onRendererMouseOver = function(event) {
+    mouseOver = true;
     // targetRotation = object.rotation.z;
     if (timer == null) {
       timer = setInterval(sceneLoop, 1000/60);
@@ -271,14 +275,19 @@ Thingiview = function(containerId) {
 
   onRendererMouseUp = function(event) {
     // log("up");
-    mouseDown = false;
+    if (mouseDown) {
+      mouseDown = false;
+      if (!mouseOver) {
+        clearInterval(timer);
+        timer = null;
+      }
+    }
   }
 
   onRendererMouseOut = function(event) {
-    // log("out");
-    clearInterval(timer);
-    timer = null;
-    // targetRotation = object.rotation.z;
+    // clearInterval(timer);
+    // timer = null;
+    mouseOver = false;
   }
 
   onRendererTouchStart = function(event) {
@@ -464,6 +473,16 @@ Thingiview = function(containerId) {
 
   this.setCameraZoom = function(factor) {
     cameraZoom = factor;
+    
+    if (cameraView == 'bottom') {
+      if (camera.position.z + factor > 0) {
+        factor = 0;
+      }
+    } else {
+      if (camera.position.z - factor < 0) {
+        factor = 0;
+      }
+    }
     
     if (cameraView == 'top') {
       camera.position.z -= factor;
