@@ -50,7 +50,6 @@ Thingiview = function(containerId) {
   var height = parseFloat(document.defaultView.getComputedStyle(container,null).getPropertyValue('height'));  
 
   var geometry;
-  var urlbase = "";
 
   this.initScene = function() {
     container.style.position = 'relative';
@@ -73,6 +72,7 @@ Thingiview = function(containerId) {
         // showPlane = false;
         isWebGl = true;
         renderer = new THREE.WebGLRenderer();
+        // renderer = new THREE.CanvasRenderer();
       } else {
         renderer = new THREE.CanvasRenderer();
       }
@@ -228,9 +228,9 @@ Thingiview = function(containerId) {
     event.preventDefault();
 
     if (event.scale > 1) {
-      scope.setCameraZoom(+10);
+      scope.setCameraZoom(+5);
     } else {
-      scope.setCameraZoom(-10);
+      scope.setCameraZoom(-5);
     }
   }
 
@@ -301,8 +301,8 @@ Thingiview = function(containerId) {
   onRendererTouchEnd = function(event) {
     clearInterval(timer);
     timer = null;
-    targetXRotation = object.rotation.z;
-    targetYRotation = object.rotation.x;
+    // targetXRotation = object.rotation.z;
+    // targetYRotation = object.rotation.x;
   }
 
   onRendererTouchMove = function(event) {
@@ -524,7 +524,7 @@ Thingiview = function(containerId) {
     clearInterval(rotateTimer);
     rotateTimer = null;
   	
-    var worker = new Worker(scope.urlbase + '/thingiloader.js');
+    var worker = new WorkerFacade(thingiurlbase + '/thingiloader.js');
     
     worker.onmessage = function(event) {
       if (event.data.status == "complete") {
@@ -636,3 +636,82 @@ function log(msg) {
     console.log(msg);
   }
 }
+
+/* A facade for the Web Worker API that fakes it in case it's missing. 
+Good when web workers aren't supported in the browser, but it's still fast enough, so execution doesn't hang too badly (e.g. Opera 10.5).
+By Stefan Wehrmeyer, licensed under MIT
+*/
+
+var WorkerFacade;
+if(!!window.Worker){
+    WorkerFacade = (function(){
+        return function(path){
+            return new window.Worker(path);
+        };
+    }());
+} else {
+    WorkerFacade = (function(){
+        var workers = {}, masters = {}, loaded = false;
+        var that = function(path){
+            var theworker = {}, loaded = false, callings = [];
+            theworker.postToWorkerFunction = function(args){
+                try{
+                    workers[path]({"data":args});
+                }catch(err){
+                    theworker.onerror(err);
+                }
+            };
+            theworker.postMessage = function(params){
+                if(!loaded){
+                    callings.push(params);
+                    return;
+                }
+                theworker.postToWorkerFunction(params);
+            };
+            masters[path] = theworker;
+            var scr = document.createElement("SCRIPT");
+            scr.src = path;
+            scr.type = "text/javascript";
+            scr.onload = function(){
+                loaded = true;
+                while(callings.length > 0){
+                    theworker.postToWorkerFunction(callings[0]);
+                    callings.shift();
+                }
+            };
+            document.body.appendChild(scr);
+            
+            var binaryscr = document.createElement("SCRIPT");
+            binaryscr.src = thingiurlbase + '/binaryReader.js';
+            binaryscr.type = "text/javascript";
+            document.body.appendChild(binaryscr);
+            
+            return theworker;
+        };
+        that.fake = true;
+        that.add = function(pth, worker){
+            workers[pth] = worker;
+            return function(param){
+                masters[pth].onmessage({"data": param});
+            };
+        };
+        that.toString = function(){
+            return "FakeWorker('"+path+"')";
+        };
+        return that;
+    }());
+}
+
+/* Then just use WorkerFacade instead of Worker (or alias it)
+
+The Worker code must should use a custom function (name it how you want) instead of postMessage.
+Put this at the end of the Worker:
+
+if(typeof(window) === "undefined"){
+    onmessage = nameOfWorkerFunction;
+    customPostMessage = postMessage;
+} else {
+    customPostMessage = WorkerFacade.add("path/to/thisworker.js", nameOfWorkerFunction);
+}
+
+*/
