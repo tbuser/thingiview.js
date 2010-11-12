@@ -71,50 +71,24 @@ Thingiloader = function(event) {
   
     var face_vertexes = [];
 
-    // header = STLBinary.getStringAt(0, 80);
     STLBinary.seek(0);
-    header = STLBinary.readString(80);
-    // console.log("header = '" + header + "'");
-  
-    // count = STLBinary.getShortAt(80);
-    // STLBinary.seek(80);
-    count = STLBinary.readUInt32();
-    // console.log("number of triangles = " + count);
-    // count = 10000;
 
-    percent = 0;
-    last_percent = 0;
+    header = STLBinary.readString(80);
+  
+    count = STLBinary.readUInt32();
 
     for (var i = 0; i < count; i++) {
-      percent = parseInt(i / count * 100);
-
-      if (percent % 5 == 0 && percent != last_percent) {
-        workerFacadeMessage({'status':'progress', 'content':percent + '%'});
-        last_percent = percent;
-      }
-
-      var start = 81 + (i * 13);
-    
-      var normal = [];
-      for (var x = 0; x < 3; x++) {
-        // STLBinary.seek(start + x);
-        normal.push(STLBinary.readFloat());
-      }
-      normals.push(normal);
-      // console.log("normal = " + normal);
+      workerFacadeMessage({'status':'message', 'content':'Parsing ' + (i+1) + ' of ' + count + ' polygons...'});
+      workerFacadeMessage({'status':'progress', 'content':parseInt(i / count * 100) + '%'});
+      
+      // normals.push([STLBinary.readFloat(),STLBinary.readFloat(),STLBinary.readFloat()]);
+      STLBinary.seek(STLBinary.getPosition() + ((32 >> 3) * 3));
     
       for (var x = 0; x < 3; x++) {
-        var vertex_start = (start + 3) + (x * 3)
-
-        var vertex = [];
-        for (var y = 0; y < 3; y++) {
-          // STLBinary.seek(vertex_start + y);
-          vertex.push(STLBinary.readFloat());
-        }
+        vertex = [STLBinary.readFloat(),STLBinary.readFloat(),STLBinary.readFloat()];
       
         if (vertexes.myIndexOf(vertex) == -1) {
           vertexes.push(vertex);
-          // console.log("vertex = " + vertex);
         }
 
         if (face_vertexes[i] == undefined) {
@@ -122,46 +96,15 @@ Thingiloader = function(event) {
         }
         face_vertexes[i].push(vertex);
       
-        // vertexes.push(vertex);
-        // console.log("vertex = " + vertex);
       }
     
-      // STLBinary.seek(start + 13);
       attribute = STLBinary.readUInt16();
-      // console.log("attribute byte count = " + attribute);
     }
 
-    // console.log("size = " + STLBinary.getSize());
-    // console.log("position = " + STLBinary.getPosition());
-  
-    var percent = 0;
-    var last_percent = 0;
-
-    // console.log("calculating faces")
-    workerFacadeMessage({'status':'message', 'content':'Calculating faces...'});
-  
+    workerFacadeMessage({'status':'message', 'content':'Building faces...'});
     for (var i=0; i<face_vertexes.length; i++) {
-      percent = parseInt(i / face_vertexes.length * 100);
-
-      if (percent % 5 == 0 && percent != last_percent) {
-        workerFacadeMessage({'status':'progress', 'content':percent + '%'});
-        last_percent = percent;
-      }
-    
-      // console.log("face vertex " + i + " = " + face_vertexes[i]);
-    
-      if (faces[i] == undefined) {
-        faces[i] = [];
-      }
-  
-      for (var fvi=0; fvi<face_vertexes[i].length; fvi++) {
-        // console.log(i + " looking for " + face_vertexes[i][fvi])
-        faces[i].push(vertexes.myIndexOf(face_vertexes[i][fvi]))
-        // console.log("found " + vertexes.indexOf(face_vertexes[i][fvi]))
-      }
-  
-      // for material
-      faces[i].push(0);
+      workerFacadeMessage({'status':'progress', 'content':parseInt(i / face_vertexes.length * 100) + '%'});
+      faces[i] = [ vertexes.myIndexOf(face_vertexes[i][0]), vertexes.myIndexOf(face_vertexes[i][1]), vertexes.myIndexOf(face_vertexes[i][2]) ];
     }
   
     return [vertexes, normals, faces];
@@ -196,21 +139,12 @@ Thingiloader = function(event) {
 
     var points = STLString.split(" ");
 
-    var percent = 0;
-    var last_percent = 0;
-
     workerFacadeMessage({'status':'message', 'content':'Parsing vertexes...'});
     for (var i=0; i<points.length/12-1; i++) {
-      percent = parseInt(i / (points.length/12-1) * 100);
-
-      if (percent % 5 == 0 && percent != last_percent) {
-        workerFacadeMessage({'status':'progress', 'content':percent + '%'});
-        last_percent = percent;
-      }
+      workerFacadeMessage({'status':'progress', 'content':parseInt(i / (points.length/12-1) * 100) + '%'});
     
-      normal = [parseFloat(points[block_start]), parseFloat(points[block_start+1]), parseFloat(points[block_start+2])]
-      normals.push(normal)
-      // console.log(normal)
+      // normal = [parseFloat(points[block_start]), parseFloat(points[block_start+1]), parseFloat(points[block_start+2])]
+      // normals.push(normal)
     
       for (var x=0; x<3; x++) {
         vertex = [parseFloat(points[block_start+x*3+3]), parseFloat(points[block_start+x*3+4]), parseFloat(points[block_start+x*3+5])];
@@ -229,51 +163,12 @@ Thingiloader = function(event) {
       block_start = block_start + 12;
     }
 
-    var percent = 0;
-    var last_percent = 0;
-
-    // console.log("calculating faces")
-    workerFacadeMessage({'status':'message', 'content':'Calculating faces...'});
+    workerFacadeMessage({'status':'message', 'content':'Building faces...'});
     for (var i=0; i<face_vertexes.length; i++) {
-      percent = parseInt(i / face_vertexes.length * 100);
-
-      if (percent % 5 == 0 && percent != last_percent) {
-        workerFacadeMessage({'status':'progress', 'content':percent + '%'});
-        last_percent = percent;
-      }
-
-      // console.log("face vertex " + i + " = " + face_vertexes[i]);
-    
-      if (faces[i] == undefined) {
-        faces[i] = [];
-      }
-  
-      for (var fvi=0; fvi<face_vertexes[i].length; fvi++) {
-        // console.log(i + " looking for " + face_vertexes[i][fvi])
-        faces[i].push(vertexes.myIndexOf(face_vertexes[i][fvi]))
-        // console.log("found " + vertexes.indexOf(face_vertexes[i][fvi]))
-      }
-  
-      // for material
-      faces[i].push(0);
+      workerFacadeMessage({'status':'progress', 'content':parseInt(i / face_vertexes.length * 100) + '%'});
+      faces[i] = [ vertexes.myIndexOf(face_vertexes[i][0]), vertexes.myIndexOf(face_vertexes[i][1]), vertexes.myIndexOf(face_vertexes[i][2]) ];
     }
   
-    // for (var i=0; i<normals.length; i++) {
-    //   console.log('passing normal: ' + normals[i][0] + ", " + normals[i][1] + ", " + normals[i][2]);
-    // }
-    // 
-    // for (var i=0; i<vertexes.length; i++) {
-    //   console.log('passing vertex: ' + vertexes[i][0] + ", " + vertexes[i][1] + ", " + vertexes[i][2]);
-    // }
-    // 
-    // for (var i=0; i<faces.length; i++) {
-    //   console.log('passing face: ' + faces[i][0] + ", " + faces[i][1] + ", " + faces[i][2]);
-    // }
-    // 
-    // console.log("end");
-    // document.getElementById('debug').innerHTML = STLString;
-  
-    // console.log("finished parsing stl")
     return [vertexes, normals, faces];
   };
 
@@ -284,39 +179,27 @@ Thingiloader = function(event) {
 
     var lines = OBJString.split("\n");
   
-    var normal_position = 0;
-  
-    var percent = 0;
-    var last_percent = 0;
+    // var normal_position = 0;
   
     for (var i=0; i<lines.length; i++) {
-      percent = parseInt(i / lines.length * 100);
-
-      if (percent % 5 == 0 && percent != last_percent) {
-        workerFacadeMessage({'status':'progress', 'content':percent + '%'});
-        last_percent = percent;
-      }
+      workerFacadeMessage({'status':'progress', 'content':parseInt(i / lines.length * 100) + '%'});
     
       line_parts = lines[i].replace(/\s+/g, " ").split(" ");
     
       if (line_parts[0] == "v") {
-        var vertex = [parseFloat(line_parts[1]), parseFloat(line_parts[2]), parseFloat(line_parts[3])];
-        vertexes.push(vertex);
-        // console.log("vertex: " + vertex);
+        vertexes.push([parseFloat(line_parts[1]), parseFloat(line_parts[2]), parseFloat(line_parts[3])]);
       } else if (line_parts[0] == "vn") {
-        if (normal_position == 0) {
-          var normal = [parseFloat(line_parts[1]), parseFloat(line_parts[2]), parseFloat(line_parts[3])];
-          normals.push(normal);
-          // console.log("normal: " + normal);
-        }
-        normal_position++;
-        if (normal_position > 2) {
-          normal_position = 0;
-        }
+        // if (normal_position == 0) {
+        //   var normal = [parseFloat(line_parts[1]), parseFloat(line_parts[2]), parseFloat(line_parts[3])];
+        //   normals.push(normal);
+        //   // console.log("normal: " + normal);
+        // }
+        // normal_position++;
+        // if (normal_position > 2) {
+        //   normal_position = 0;
+        // }
       } else if (line_parts[0] == "f") {
-        var face = [parseFloat(line_parts[1].split("/")[0])-1, parseFloat(line_parts[2].split("/")[0])-1, parseFloat(line_parts[3].split("/")[0]-1), 0];
-        faces.push(face)
-        // console.log("face: " + face);
+        faces.push([parseFloat(line_parts[1].split("/")[0])-1, parseFloat(line_parts[2].split("/")[0])-1, parseFloat(line_parts[3].split("/")[0]-1), 0])
       }
     }
   

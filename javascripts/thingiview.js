@@ -241,6 +241,7 @@ Thingiview = function(containerId) {
     mouseOver = true;
     // targetRotation = object.rotation.z;
     if (timer == null) {
+      // log('starting loop');
       timer = setInterval(sceneLoop, 1000/60);
     }
   }
@@ -366,7 +367,7 @@ Thingiview = function(containerId) {
 
   rotateLoop = function() {
     // targetRotation += 0.01;
-    targetXRotation += 0.1;
+    targetXRotation += 0.05;
     sceneLoop();
   }
 
@@ -560,11 +561,11 @@ Thingiview = function(containerId) {
       } else if (event.data.status == "progress") {
         progressBar.style.display = 'block';
         progressBar.style.width = event.data.content;
-        log(event.data.content);
+        // log(event.data.content);
       } else if (event.data.status == "message") {
         progressBar.style.display = 'block';
         progressBar.innerHTML = event.data.content;
-        log(event.data.content);
+        // log(event.data.content);
       } else {
         alert('Error: ' + event.data);
         log('Unknown Worker Message: ' + event.data);
@@ -624,7 +625,7 @@ var STLGeometry = function(STLArray) {
 	var scope = this;
 
   var vertexes = STLArray[0];
-  var normals  = STLArray[1];
+  // var normals  = STLArray[1];
   var faces    = STLArray[2];
 
   for (var i=0; i<vertexes.length; i++) {    
