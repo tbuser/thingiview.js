@@ -515,7 +515,7 @@ Thingiview = function(containerId) {
   }
 
   this.setObjectColor = function(color) {
-    objectColor = color;
+    objectColor = parseInt(color.replace(/\#/g, ''), 16);
     
     loadObjectGeometry();
   }

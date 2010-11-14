@@ -1,25 +1,3 @@
-// onmessage = function (event) {
-//   loader = new Thingiloader();
-//   
-//   switch(event.data.cmd) {
-//     case "loadSTL":
-//     loader.loadSTL(event.data.param);
-//     break;
-//     case "loadSTLString":
-//     loader.loadSTLString(event.data.param);
-//     break;
-//     case "loadSTLBinary":
-//     loader.loadSTLBinary(event.data.param);
-//     break;
-//     case "loadOBJ":
-//     loader.loadOBJ(event.data.param);
-//     break;
-//     case "loadOBJString":
-//     loader.loadOBJString(event.data.param);
-//     break;
-//   }
-// };
-
 Thingiloader = function(event) {
   // Code from https://developer.mozilla.org/En/Using_XMLHttpRequest#Receiving_binary_data
   this.load_binary_resource = function(url) {
@@ -242,7 +220,7 @@ Array.prototype.myIndexOf = function(searchstring, indexstart) {
 	return result;
 };
 
-if(typeof(window) === "undefined"){
+if (typeof(window) === "undefined") {
     onmessage = Thingiloader;
     workerFacadeMessage = postMessage;
     importScripts('binaryReader.js');
