@@ -1,7 +1,7 @@
 Thingiview.js
 =============
 
-A javascript (using Canvas and WebGL if available) 3D model viewer.  Uses the [Three.js](http://github.com/mrdoob/three.js) 3D Engine.
+A javascript (using Canvas and WebGL if available) 3D model viewer.  Uses the [Three.js](http://github.com/mrdoob/three.js) 3D Engine.  Check out the [Examples](http://replimat.com/thingiview/examples/).
 
 # Features
 
@@ -23,7 +23,7 @@ A javascript (using Canvas and WebGL if available) 3D model viewer.  Uses the [T
       window.onload = function() {
         thingiurlbase = "/javascripts";
         thingiview = new Thingiview("viewer");
-        thingiview.setObjectColor(0xC0D8F0);
+        thingiview.setObjectColor('#C0D8F0');
         thingiview.initScene();
         thingiview.loadSTL("/objects/cube.stl");
       }
