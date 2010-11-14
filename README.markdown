@@ -14,34 +14,29 @@ A javascript (using Canvas and WebGL if available) 3D model viewer.  Uses the [T
 
 # Example
 
-<pre>
-<script src="/javascripts/Three.js"></script>
-<script src="/javascripts/plane.js"></script>
-<script src="/javascripts/thingiview.js"></script>
+<pre><code>
+    &lt;script src="/javascripts/Three.js"&gt;&lt;/script&gt;
+    &lt;script src="/javascripts/plane.js"&gt;&lt;/script&gt;
+    &lt;script src="/javascripts/thingiview.js"&gt;&lt;/script&gt;
 
-<script>
-  window.onload = function() {
-    thingiurlbase = "/javascripts";
+    &lt;script>
+      window.onload = function() {
+        thingiurlbase = "/javascripts";
+        thingiview = new Thingiview("viewer");
+        thingiview.setObjectColor(0xC0D8F0);
+        thingiview.initScene();
+        thingiview.loadSTL("/objects/cube.stl");
+      }
+    &lt;/script&gt;
 
-    thingiview = new Thingiview("viewer");
-
-    thingiview.setObjectColor(0xC0D8F0);
-
-    thingiview.initScene();
-
-    thingiview.loadSTL("/objects/cube.stl");
-  }
-</script>
-
-<div id="viewer" style="width:300px;height:300px"></div>
-</pre>
+    &lt;div id="viewer" style="width:300px;height:300px"&gt;&lt;/div&gt;
+</code></pre>
 
 # Usage
 
 It's important that everything is done within window.onload.
 
 ## thingiurlbase = "/javascripts";
--------------------------------
 
 Must be set to the path where the javascript files are located so that related scripts can be loaded dynamically.
 
