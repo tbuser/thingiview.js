@@ -82,57 +82,33 @@ Thingiview = function(containerId) {
       renderer = new THREE.CanvasRenderer();
     }
 
-    // ambientLight = new THREE.AmbientLight(0x80ffff);
-    // scene.addLight(ambientLight);
-    // 
-    // directionalLight = new THREE.DirectionalLight(0xffff00);
-    // scene.addLight(directionalLight);
-
-    // ambientLight = new THREE.AmbientLight(Math.random() * 0x202020);
     if (!isWebGl) {
       ambientLight = new THREE.AmbientLight(0x202020);
       scene.addLight(ambientLight);
     }
     
-    // directionalLight = new THREE.DirectionalLight( Math.random() * 0xffffff);
-    // directionalLight.position.x = Math.random() - 0.5;
-    // directionalLight.position.y = Math.random() - 0.5;
-    // directionalLight.position.z = Math.random() - 0.5;
     if (isWebGl) {
       directionalLight = new THREE.DirectionalLight(0xffffff, 0.5);
     } else {
       directionalLight = new THREE.DirectionalLight(0xffffff, 1);
     }
-    // directionalLight = new THREE.DirectionalLight(0x0000ff);
-		directionalLight.position.x = 1;
-		directionalLight.position.y = 1;
-		directionalLight.position.z = 2;
+    directionalLight.position.x = 1;
+    directionalLight.position.y = 1;
+    directionalLight.position.z = 2;
     directionalLight.position.normalize();
     scene.addLight(directionalLight);
 
-    pointLight1 = new THREE.PointLight(0xffffff, 0.2);
-    pointLight1.position.x = 0;
-    pointLight1.position.y = 50;
-    pointLight1.position.z = -10;
-    scene.addLight(pointLight1);
-
+    // pointLight1 = new THREE.PointLight(0xffffff, 0.2);
+    // pointLight1.position.x = 0;
+    // pointLight1.position.y = 50;
+    // pointLight1.position.z = -10;
+    // scene.addLight(pointLight1);
+    // 
     pointLight2 = new THREE.PointLight(0xffffff, 0.2);
     pointLight2.position.x = 0;
     pointLight2.position.y = -50;
     pointLight2.position.z = 10;
     scene.addLight(pointLight2);
-
-    // pointLight3 = new THREE.PointLight(0xffffff, 1);
-    // pointLight3.position.x = -50;
-    // pointLight3.position.y = 50;
-    // pointLight3.position.z = 0;
-    // scene.addLight(pointLight3);
-    // 
-    // pointLight4 = new THREE.PointLight(0xffffff, 1);
-    // pointLight4.position.x = -50;
-    // pointLight4.position.y = -50;
-    // pointLight4.position.z = 0;
-    // scene.addLight(pointLight4);
 
     renderer.setSize(container.innerWidth, container.innerHeight);
 
@@ -611,9 +587,7 @@ Thingiview = function(containerId) {
   }
 
   function loadPlaneGeometry() {
-    // plane = new THREE.Mesh(new Plane(100, 100, 10, 10), new THREE.MeshColorStrokeMaterial(0xafafaf, 0.5, 1));
     plane = new THREE.Mesh(new Plane(100, 100, 10, 10), new THREE.MeshColorStrokeMaterial(0xafafaf, 0.5, 0.5));
-    // plane = new THREE.Mesh(new Plane(100, 100, 10, 10), new THREE.MeshColorFillMaterial(0xffffff, 0.5));
     // plane.updateMatrix();
     // plane.doubleSided = true;
     // plane.position.z = 1;
@@ -628,7 +602,8 @@ Thingiview = function(containerId) {
         material = new THREE.MeshColorStrokeMaterial(objectColor, 1, 1);
       } else {
         if (isWebGl) {
-          material = new THREE.MeshPhongMaterial(objectColor, objectColor, 0xffffff, 50, 1.0);
+          // material = new THREE.MeshPhongMaterial(objectColor, objectColor, 0xffffff, 50, 1.0);
+          material = new THREE.MeshColorFillMaterial(objectColor);
         } else {
           material = new THREE.MeshColorFillMaterial(objectColor);
         }
