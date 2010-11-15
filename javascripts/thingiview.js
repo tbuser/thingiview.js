@@ -34,6 +34,7 @@ Thingiview = function(containerId) {
   var view         = null;
   var infoMessage  = null;
   var progressBar  = null;
+  var alertBox     = null;
   
   var timer        = null;
   var rotateTimer  = null;
@@ -139,17 +140,27 @@ Thingiview = function(containerId) {
     progressBar.style.position = 'absolute';
     progressBar.style.top = '0px';
     progressBar.style.left = '0px';
-    // progressBar.style.width = '5%';
-    // progressBar.style.height = '10%';
     progressBar.style.backgroundColor = 'red';
-    // progressBar.innerHTML = 'Testing................';
     progressBar.style.padding = '5px';
-    // progressBar.style.fontSize = '20pt';
     progressBar.style.display = 'none';
     progressBar.style.overflow = 'visible';
     progressBar.style.whiteSpace = 'nowrap';
     progressBar.style.zIndex = 100;
     container.appendChild(progressBar);
+    
+    alertBox = document.createElement('div');
+    alertBox.id = 'alertBox';
+    alertBox.style.position = 'absolute';
+    alertBox.style.top = '25%';
+    alertBox.style.left = '25%';
+    alertBox.style.width = '50%';
+    alertBox.style.height = '50%';
+    alertBox.style.backgroundColor = '#dddddd';
+    alertBox.style.padding = '10px';
+    // alertBox.style.overflowY = 'scroll';
+    alertBox.style.display = 'none';
+    alertBox.style.zIndex = 100;
+    container.appendChild(alertBox);
     
     // load a blank object
     // this.loadSTLString('');
@@ -566,6 +577,8 @@ Thingiview = function(containerId) {
         progressBar.style.display = 'block';
         progressBar.innerHTML = event.data.content;
         // log(event.data.content);
+      } else if (event.data.status == "alert") {
+        scope.displayAlert(event.data.content);
       } else {
         alert('Error: ' + event.data);
         log('Unknown Worker Message: ' + event.data);
@@ -578,6 +591,23 @@ Thingiview = function(containerId) {
     }
 
     worker.postMessage({'cmd':cmd, 'param':param});
+  }
+
+  this.displayAlert = function(msg) {
+    if (msg == "large object!") {
+      msg = "This object is very large and will take a long time to load and be very slow."
+      
+      if (!isWebGl) {
+        msg = msg + " For the best performance we recommend a <a href=\"http://www.khronos.org/webgl/wiki/Getting_a_WebGL_Implementation\">WebGL enabled browser</a> such as Chromium."
+      }
+    }
+    
+    msg = msg + "<br/><br/><center><input type=\"button\" value=\"Ok\" onclick=\"document.getElementById('alertBox').style.display='none'\"></center>"
+    
+    alertBox.innerHTML = msg;
+    alertBox.style.display = 'block';
+    
+    // log(msg);
   }
 
   function loadPlaneGeometry() {

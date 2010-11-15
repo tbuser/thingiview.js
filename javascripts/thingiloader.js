@@ -7,6 +7,13 @@ Thingiloader = function(event) {
   	req.overrideMimeType('text/plain; charset=x-user-defined');
   	req.send(null);
   	if (req.status != 200) return '';
+
+    // workerFacadeMessage({'status':'alert', 'content':req.responseText.length});
+    
+    if (req.responseText.length > 1000000) {
+      workerFacadeMessage({'status':'alert', 'content':'large object!'});
+    }
+
   	return req.responseText;
   };
 

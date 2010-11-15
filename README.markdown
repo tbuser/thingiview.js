@@ -79,3 +79,7 @@ Possible values include: `top, side, bottom, diagonal`.  Resets the camera view 
 ## thingiview.setCameraZoom(5);
 
 Pass a positive number to zoom the camera in or a negative number to zoom out.
+
+## thingiview.displayAlert("This is a message");
+
+Displays the text passed in a window inside the viewer with an Ok button to then hide it.
