@@ -4,7 +4,7 @@ Thingiview = function(containerId) {
   this.containerId  = containerId;
   var container     = document.getElementById(containerId);
   
-  // var stats    = null;
+  var stats    = null;
   var camera   = null;
   var scene    = null;
   var renderer = null;
@@ -48,8 +48,13 @@ Thingiview = function(containerId) {
   var showPlane = true;
   var isWebGl = false;
 
-  var width  = parseFloat(document.defaultView.getComputedStyle(container,null).getPropertyValue('width'));
-  var height = parseFloat(document.defaultView.getComputedStyle(container,null).getPropertyValue('height'));  
+  if (document.defaultView && document.defaultView.getComputedStyle) {
+    var width  = parseFloat(document.defaultView.getComputedStyle(container,null).getPropertyValue('width'));
+    var height = parseFloat(document.defaultView.getComputedStyle(container,null).getPropertyValue('height'));  
+  } else {
+    var width  = parseFloat(container.currentStyle.width);
+    var height = parseFloat(container.currentStyle.height);
+  }
 
   var geometry;
 
@@ -57,16 +62,26 @@ Thingiview = function(containerId) {
     container.style.position = 'relative';
     container.innerHTML      = '';
 
-    // infoMessage                  = document.createElement('div');
-    // infoMessage.style.position   = 'absolute';
-    // infoMessage.style.top        = '10px';
-    // infoMessage.style.width      = '100%';
-    // infoMessage.style.textAlign  = 'center';
-    // infoMessage.innerHTML        = 'Loading STL...';
-    // container.appendChild(infoMessage);
+  	camera = new THREE.Camera(50, width/ height, 1, 100000);
+  	camera.updateMatrix();
 
-  	camera = new THREE.Camera(65, width/ height, 1, 1000);
   	scene  = new THREE.Scene();
+
+    ambientLight = new THREE.AmbientLight(0x202020);
+    scene.addLight(ambientLight);
+    
+    directionalLight = new THREE.DirectionalLight(0xffffff, 0.5);
+    directionalLight.position.x = 1;
+    directionalLight.position.y = 1;
+    directionalLight.position.z = 2;
+    directionalLight.position.normalize();
+    scene.addLight(directionalLight);
+
+    pointLight = new THREE.PointLight(0xffffff);
+    pointLight.position.x = 0;
+    pointLight.position.y = -25;
+    pointLight.position.z = 10;
+    scene.addLight(pointLight);
 
     testCanvas = document.createElement('canvas');
     try {
@@ -80,35 +95,8 @@ Thingiview = function(containerId) {
       }
     } catch(e) {
       renderer = new THREE.CanvasRenderer();
+      // log("failed webgl detection");
     }
-
-    if (!isWebGl) {
-      ambientLight = new THREE.AmbientLight(0x202020);
-      scene.addLight(ambientLight);
-    }
-    
-    if (isWebGl) {
-      directionalLight = new THREE.DirectionalLight(0xffffff, 0.5);
-    } else {
-      directionalLight = new THREE.DirectionalLight(0xffffff, 1);
-    }
-    directionalLight.position.x = 1;
-    directionalLight.position.y = 1;
-    directionalLight.position.z = 2;
-    directionalLight.position.normalize();
-    scene.addLight(directionalLight);
-
-    // pointLight1 = new THREE.PointLight(0xffffff, 0.2);
-    // pointLight1.position.x = 0;
-    // pointLight1.position.y = 50;
-    // pointLight1.position.z = -10;
-    // scene.addLight(pointLight1);
-    // 
-    pointLight2 = new THREE.PointLight(0xffffff, 0.2);
-    pointLight2.position.x = 0;
-    pointLight2.position.y = -50;
-    pointLight2.position.z = 10;
-    scene.addLight(pointLight2);
 
     renderer.setSize(container.innerWidth, container.innerHeight);
 
@@ -139,7 +127,7 @@ Thingiview = function(containerId) {
     container.appendChild(alertBox);
     
     // load a blank object
-    // this.loadSTLString('');
+    this.loadSTLString('');
 
     if (showPlane) {
       loadPlaneGeometry();
@@ -152,10 +140,10 @@ Thingiview = function(containerId) {
     this.setCameraView(cameraView);
     this.setObjectMaterial(objectMaterial);
 
-    // stats = new Stats();
-    // stats.domElement.style.position  = 'absolute';
-    // stats.domElement.style.top       = '0px';
-    // container.appendChild(stats.domElement);
+    stats = new Stats();
+    stats.domElement.style.position  = 'absolute';
+    stats.domElement.style.top       = '0px';
+    container.appendChild(stats.domElement);
 
     // TODO: figure out how to get the render window to resize when window resizes
     // window.addEventListener('resize', onContainerResize(), false);
@@ -237,27 +225,32 @@ Thingiview = function(containerId) {
     // log("down");
 
     event.preventDefault();
-
   	mouseDown = true;
-  	event.preventDefault();
   	
   	clearInterval(rotateTimer);
     rotateTimer = null;
     
   	mouseXOnMouseDown = event.clientX - windowHalfX;
   	mouseYOnMouseDown = event.clientY - windowHalfY;
+
   	targetXRotationOnMouseDown = targetXRotation;
   	targetYRotationOnMouseDown = targetYRotation;
   }
 
   onRendererMouseMove = function(event) {
     // log("move");
+
     if (mouseDown) {
   	  mouseX = event.clientX - windowHalfX;
-  	  targetXRotation = targetXRotationOnMouseDown + (mouseX - mouseXOnMouseDown) * 0.02;
+      // targetXRotation = targetXRotationOnMouseDown + (mouseX - mouseXOnMouseDown) * 0.02;
+  	  xrot = targetXRotationOnMouseDown + (mouseX - mouseXOnMouseDown) * 0.02;
 
   	  mouseY = event.clientY - windowHalfY;
-  	  targetYRotation = targetYRotationOnMouseDown + (mouseY - mouseYOnMouseDown) * 0.02;
+      // targetYRotation = targetYRotationOnMouseDown + (mouseY - mouseYOnMouseDown) * 0.02;
+  	  yrot = targetYRotationOnMouseDown + (mouseY - mouseYOnMouseDown) * 0.02;
+  	  
+  	  targetXRotation = xrot;
+  	  targetYRotation = yrot;
 	  }
   }
 
@@ -273,8 +266,10 @@ Thingiview = function(containerId) {
   }
 
   onRendererMouseOut = function(event) {
-    // clearInterval(timer);
-    // timer = null;
+    if (!mouseDown) {
+      clearInterval(timer);
+      timer = null;
+    }
     mouseOver = false;
   }
 
@@ -340,15 +335,15 @@ Thingiview = function(containerId) {
 
       // log(object.rotation.x);
 
-      // camera.updateMatrix();
-      // object.updateMatrix();
+      camera.updateMatrix();
+      object.updateMatrix();
       
-      // if (showPlane) {
-        // plane.updateMatrix();
-      // }
+      if (showPlane) {
+        plane.updateMatrix();
+      }
 
     	renderer.render(scene, camera);
-      // stats.update();
+      stats.update();
     }
   }
 
@@ -542,9 +537,10 @@ Thingiview = function(containerId) {
         progressBar.innerHTML = '';
         progressBar.style.display = 'none';
 
-        clearInterval(rotateTimer);
-        rotateTimer = null;
-        rotateTimer = setInterval(rotateLoop, 1000/60);
+        // clearInterval(rotateTimer);
+        // rotateTimer = null;
+        // rotateTimer = setInterval(rotateLoop, 1000/60);
+        log("finished loading " + geometry.faces.length + " faces.");
       } else if (event.data.status == "progress") {
         progressBar.style.display = 'block';
         progressBar.style.width = event.data.content;
@@ -587,8 +583,10 @@ Thingiview = function(containerId) {
   }
 
   function loadPlaneGeometry() {
-    plane = new THREE.Mesh(new Plane(100, 100, 10, 10), new THREE.MeshColorStrokeMaterial(0xafafaf, 0.5, 0.5));
-    // plane.updateMatrix();
+    // plane = new THREE.Mesh(new Plane(100, 100, 10, 10), new THREE.MeshColorStrokeMaterial(0xafafaf, 0.5, 0.5));
+    plane = new THREE.Mesh(new Plane(100, 100, 10, 10), new THREE.MeshBasicMaterial({color:0xafafaf,wireframe:true}));
+    // plane.overdraw = true;
+    plane.updateMatrix();
     // plane.doubleSided = true;
     // plane.position.z = 1;
     scene.addObject(plane);    
@@ -599,20 +597,23 @@ Thingiview = function(containerId) {
       scene.removeObject(object);
     
       if (objectMaterial == 'wireframe') {
-        material = new THREE.MeshColorStrokeMaterial(objectColor, 1, 1);
+        // material = new THREE.MeshColorStrokeMaterial(objectColor, 1, 1);
+        material = new THREE.MeshBasicMaterial({color:objectColor,wireframe:true});
       } else {
         if (isWebGl) {
           // material = new THREE.MeshPhongMaterial(objectColor, objectColor, 0xffffff, 50, 1.0);
-          material = new THREE.MeshColorFillMaterial(objectColor);
+          // material = new THREE.MeshColorFillMaterial(objectColor);
+          material = new THREE.MeshLambertMaterial({color:objectColor});
         } else {
-          material = new THREE.MeshColorFillMaterial(objectColor);
+          // material = new THREE.MeshColorFillMaterial(objectColor);
+          material = new THREE.MeshLambertMaterial({color:objectColor});
         }
       }
 
       object = new THREE.Mesh(geometry, material);
 
       object.overdraw = true;
-      // object.updateMatrix();
+      object.updateMatrix();
   		scene.addObject(object);
     
       targetXRotation = 0;
@@ -625,32 +626,38 @@ Thingiview = function(containerId) {
 };
 
 var STLGeometry = function(STLArray) {
+  // log("building geometry...");
 	THREE.Geometry.call(this);
 
 	var scope = this;
 
-  var vertexes = STLArray[0];
+  // var vertexes = STLArray[0];
   // var normals  = STLArray[1];
-  var faces    = STLArray[2];
+  // var faces    = STLArray[2];
 
-  for (var i=0; i<vertexes.length; i++) {    
-    v(vertexes[i][0], vertexes[i][1], vertexes[i][2]);
+  for (var i=0; i<STLArray[0].length; i++) {    
+    v(STLArray[0][i][0], STLArray[0][i][1], STLArray[0][i][2]);
   }
 
-  for (var i=0; i<faces.length; i++) {
-    f3(faces[i][0], faces[i][1], faces[i][2]);
+  for (var i=0; i<STLArray[2].length; i++) {
+    f3(STLArray[2][i][0], STLArray[2][i][1], STLArray[2][i][2]);
   }
 
   function v(x, y, z) {
+    // log("adding vertex: " + x + "," + y + "," + z);
     scope.vertices.push( new THREE.Vertex( new THREE.Vector3( x, y, z ) ) );
   }
 
   function f3(a, b, c) {
+    // log("adding face: " + a + "," + b + "," + c)
     scope.faces.push( new THREE.Face3( a, b, c ) );
   }
 
+  // log("computing centroids...");
   this.computeCentroids();
+  // log("computing normals...");
   this.computeNormals();
+  // log("finished building geometry");
 }
 
 STLGeometry.prototype = new THREE.Geometry();
