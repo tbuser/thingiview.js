@@ -537,9 +537,9 @@ Thingiview = function(containerId) {
         progressBar.innerHTML = '';
         progressBar.style.display = 'none';
 
-        // clearInterval(rotateTimer);
-        // rotateTimer = null;
-        // rotateTimer = setInterval(rotateLoop, 1000/60);
+        clearInterval(rotateTimer);
+        rotateTimer = null;
+        rotateTimer = setInterval(rotateLoop, 1000/60);
         log("finished loading " + geometry.faces.length + " faces.");
       } else if (event.data.status == "progress") {
         progressBar.style.display = 'block';
