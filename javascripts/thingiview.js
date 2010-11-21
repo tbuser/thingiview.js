@@ -127,7 +127,7 @@ Thingiview = function(containerId) {
     container.appendChild(alertBox);
     
     // load a blank object
-    this.loadSTLString('');
+    // this.loadSTLString('');
 
     if (showPlane) {
       loadPlaneGeometry();
@@ -570,7 +570,7 @@ Thingiview = function(containerId) {
       msg = "This object is very large and will take a long time to load and be very slow."
       
       if (!isWebGl) {
-        msg = msg + " For the best performance we recommend a <a href=\"http://www.khronos.org/webgl/wiki/Getting_a_WebGL_Implementation\">WebGL enabled browser</a> such as Chromium."
+        msg = msg + " For the best performance we recommend a <a href=\"http://www.khronos.org/webgl/wiki/Getting_a_WebGL_Implementation\">WebGL enabled browser</a> such as Minefield."
       }
     }
     
@@ -604,6 +604,7 @@ Thingiview = function(containerId) {
           // material = new THREE.MeshPhongMaterial(objectColor, objectColor, 0xffffff, 50, 1.0);
           // material = new THREE.MeshColorFillMaterial(objectColor);
           material = new THREE.MeshLambertMaterial({color:objectColor});
+          // material = new THREE.MeshLambertMaterial({color:objectColor});
         } else {
           // material = new THREE.MeshColorFillMaterial(objectColor);
           material = new THREE.MeshLambertMaterial({color:objectColor});

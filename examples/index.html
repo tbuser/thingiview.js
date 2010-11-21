@@ -62,6 +62,7 @@
   <ul>
     <li><a href="#" onclick="thingiview.loadSTL('../examples/objects/cube_binary.stl')">render</a> | <a href="objects/cube_binary.stl">download</a> Cube with hole</li>
     <li><a href="#" onclick="thingiview.loadSTL('../examples/objects/vader.stl')">render</a> | <a href="objects/vader.stl">download</a> Darth Vader</li>
+    <li><a href="#" onclick="thingiview.loadSTL('../examples/objects/39t17p.stl')">render</a> | <a href="objects/39t17p.stl">download</a> Wade Gear</li>
     <li><a href="#" onclick="thingiview.loadSTL('../examples/objects/shell.stl')">render</a> | <a href="objects/shell.stl">download</a> Shell (big and buggy)</li>
     <li><a href="#" onclick="thingiview.loadSTL('../examples/objects/walt.stl')">render</a> | <a href="objects/walt.stl">download</a> Walt (way too huge)</li>
     <li><a href="#" onclick="thingiview.loadSTL('../examples/objects/dragonheadfixed.stl')">render</a> | <a href="objects/dragonheadfixed.stl">download</a> Dragon! (huge)</li>
@@ -79,6 +80,19 @@
   <h3>Todo</h3>
   <ul>
     <li>figure out a way to make it into a widget that people can embed on another site</li>
+  </ul>
+  
+  <h3>Known Bugs</h3>
+  <ul>
+    <li>
+      Chromium fails, console says:
+        <ul>
+          <li>[7186:263:113996147626742:ERROR:/b/build/slave/Mac/build/src/gpu/command_buffer/service/gles2_cmd_decoder.cc(2333)] GLES2DecoderImpl::UpdateOffscreenFrameBufferSize failed because offscreen FBO was incomplete.</li>
+          <li>[7186:263:113996147689917:ERROR:/b/build/slave/Mac/build/src/gpu/command_buffer/service/gles2_cmd_decoder.cc(5832)] Context lost because reallocation of offscreen FBO failed.</li>
+        </ul>
+    </li>
+    <li>Minefield and Webkit, using webgl, fail to remove last object from scene when dynamically loading another object</li>
+    <li>Three.js fails in IE (suggest you force chrome frame plugin to be installed)</li>
   </ul>
 </div>
 
