@@ -76,7 +76,7 @@ Thingiview = function(containerId) {
     directionalLight.position.z = 2;
     directionalLight.position.normalize();
     scene.addLight(directionalLight);
-
+    
     pointLight = new THREE.PointLight(0xffffff);
     pointLight.position.x = 0;
     pointLight.position.y = -25;
@@ -586,7 +586,7 @@ Thingiview = function(containerId) {
     // plane = new THREE.Mesh(new Plane(100, 100, 10, 10), new THREE.MeshColorStrokeMaterial(0xafafaf, 0.5, 0.5));
     plane = new THREE.Mesh(new Plane(100, 100, 10, 10), new THREE.MeshBasicMaterial({color:0xafafaf,wireframe:true}));
     // plane.overdraw = true;
-    plane.updateMatrix();
+    // plane.updateMatrix();
     // plane.doubleSided = true;
     // plane.position.z = 1;
     scene.addObject(plane);    
@@ -603,19 +603,28 @@ Thingiview = function(containerId) {
         if (isWebGl) {
           // material = new THREE.MeshPhongMaterial(objectColor, objectColor, 0xffffff, 50, 1.0);
           // material = new THREE.MeshColorFillMaterial(objectColor);
-          material = new THREE.MeshLambertMaterial({color:objectColor});
+          material = new THREE.MeshLambertMaterial({color:objectColor, shading: THREE.FlatShading});
           // material = new THREE.MeshLambertMaterial({color:objectColor});
         } else {
           // material = new THREE.MeshColorFillMaterial(objectColor);
-          material = new THREE.MeshLambertMaterial({color:objectColor});
+          material = new THREE.MeshLambertMaterial({color:objectColor, shading: THREE.FlatShading});
         }
       }
 
-      object = new THREE.Mesh(geometry, material);
+      // shouldn't be needed, but this fixes a bug with webgl not removing previous object when loading a new one dynamically
+      if (object) {
+        object.geometry = geometry;
+        object.material = material;
+      }
 
-      object.overdraw = true;
-      object.updateMatrix();
+      object = new THREE.Mesh(geometry, material);
   		scene.addObject(object);
+
+      if (objectMaterial != 'wireframe') {
+        object.overdraw = true;
+      }
+      
+      object.updateMatrix();
     
       targetXRotation = 0;
       targetYRotation = 0;
