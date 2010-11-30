@@ -50,7 +50,7 @@ Loads the scene into the container div.
 
 ## thingiview.loadSTL("/path/to/model.stl"); or thingiview.loadOBJ("/path/to/model.obj");
 
-Make sure you pass the fill path to the model file you want to load.  This will make an ajax call to the server to fetch it.
+Make sure you pass the full url path to the model file you want to load.  This will make an ajax call to the server to fetch it.
   
 ## thingiview.setShowPlane(true);
 
@@ -70,7 +70,7 @@ Yep, it sets the object's color.
   
 ## thingiview.setRotation(true);
 
-`true or false`.  This causes the objet to slowly rotate around the z axis.
+`true or false`.  This causes the object to slowly rotate around the z axis.
   
 ## thingiview.setCameraView('top');
 
