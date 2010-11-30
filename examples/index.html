@@ -17,7 +17,6 @@
   
   <script src="../javascripts/Three.js"></script>
   <script src="../javascripts/plane.js"></script>
-  <script src="../javascripts/stats.js"></script>
   <script src="../javascripts/thingiview.js"></script>
 
   <script>
@@ -32,6 +31,7 @@
       thingiview = new Thingiview("viewer");
       thingiview.setObjectColor('#C0D8F0');
       thingiview.initScene();
+      thingiview.setShowPlane(false);
       thingiview.loadSTL("../examples/objects/cube.stl");
     }
   </script>

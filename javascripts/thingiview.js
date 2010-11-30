@@ -4,7 +4,7 @@ Thingiview = function(containerId) {
   this.containerId  = containerId;
   var container     = document.getElementById(containerId);
   
-  var stats    = null;
+  // var stats    = null;
   var camera   = null;
   var scene    = null;
   var renderer = null;
@@ -140,10 +140,10 @@ Thingiview = function(containerId) {
     this.setCameraView(cameraView);
     this.setObjectMaterial(objectMaterial);
 
-    stats = new Stats();
-    stats.domElement.style.position  = 'absolute';
-    stats.domElement.style.top       = '0px';
-    container.appendChild(stats.domElement);
+    // stats = new Stats();
+    // stats.domElement.style.position  = 'absolute';
+    // stats.domElement.style.top       = '0px';
+    // container.appendChild(stats.domElement);
 
     // TODO: figure out how to get the render window to resize when window resizes
     // window.addEventListener('resize', onContainerResize(), false);
@@ -167,18 +167,18 @@ Thingiview = function(containerId) {
   }
 
   // FIXME
-  onContainerResize = function(event) {
-    width  = parseFloat(document.defaultView.getComputedStyle(container,null).getPropertyValue('width'));
-    height = parseFloat(document.defaultView.getComputedStyle(container,null).getPropertyValue('height'));
-
-    // log("resized width: " + width + ", height: " + height);
-  
-    if (renderer) {
-      renderer.setSize(width, height);
-      camera.projectionMatrix = THREE.Matrix4.makePerspective(70, width / height, 1, 10000);
-      sceneLoop();
-    }    
-  };
+  // onContainerResize = function(event) {
+  //   width  = parseFloat(document.defaultView.getComputedStyle(container,null).getPropertyValue('width'));
+  //   height = parseFloat(document.defaultView.getComputedStyle(container,null).getPropertyValue('height'));
+  // 
+  //   // log("resized width: " + width + ", height: " + height);
+  // 
+  //   if (renderer) {
+  //     renderer.setSize(width, height);
+  //     camera.projectionMatrix = THREE.Matrix4.makePerspective(70, width / height, 1, 10000);
+  //     sceneLoop();
+  //   }    
+  // };
   
   onRendererScroll = function(event) {
     event.preventDefault();
@@ -343,7 +343,7 @@ Thingiview = function(containerId) {
       }
 
     	renderer.render(scene, camera);
-      stats.update();
+      // stats.update();
     }
   }
 
@@ -355,17 +355,22 @@ Thingiview = function(containerId) {
 
   this.setShowPlane = function(show) {
     showPlane = show;
-
+    
     if (show) {
       if (scene && !plane) {
         loadPlaneGeometry();
       }
+      plane.material[0].opacity = 1;
+      // plane.updateMatrix();
     } else {
       if (scene && plane) {
-        scene.removeObject(plane);
-        plane = null;
+        // alert(plane.material[0].opacity);
+        plane.material[0].opacity = 0;
+        // plane.updateMatrix();
       }
     }
+    
+    sceneLoop();
   }
 
   this.setRotation = function(rotate) {
@@ -531,7 +536,7 @@ Thingiview = function(containerId) {
     worker.onmessage = function(event) {
       if (event.data.status == "complete") {
         progressBar.innerHTML = 'Initializing geometry...';
-        scene.removeObject(object);
+        // scene.removeObject(object);
         geometry = new STLGeometry(event.data.content);
         loadObjectGeometry();
         progressBar.innerHTML = '';
@@ -583,18 +588,14 @@ Thingiview = function(containerId) {
   }
 
   function loadPlaneGeometry() {
-    // plane = new THREE.Mesh(new Plane(100, 100, 10, 10), new THREE.MeshColorStrokeMaterial(0xafafaf, 0.5, 0.5));
+    // TODO: switch to lines instead of the Plane object so we can get rid of the horizontal lines...
     plane = new THREE.Mesh(new Plane(100, 100, 10, 10), new THREE.MeshBasicMaterial({color:0xafafaf,wireframe:true}));
-    // plane.overdraw = true;
-    // plane.updateMatrix();
-    // plane.doubleSided = true;
-    // plane.position.z = 1;
-    scene.addObject(plane);    
+    scene.addObject(plane);
   }
 
   function loadObjectGeometry() {
     if (scene && geometry) {
-      scene.removeObject(object);
+      // scene.removeObject(object);
     
       if (objectMaterial == 'wireframe') {
         // material = new THREE.MeshColorStrokeMaterial(objectColor, 1, 1);
