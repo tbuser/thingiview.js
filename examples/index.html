@@ -32,8 +32,20 @@
       thingiview.setObjectColor('#C0D8F0');
       thingiview.initScene();
       // thingiview.setShowPlane(true);
-      thingiview.loadSTL("../examples/objects/cube.stl");
+      if (getUrlVars()["stl"]) {
+        thingiview.loadSTL(getUrlVars()["stl"]);
+      } else {
+        thingiview.loadSTL("../examples/objects/cube.stl");
+      }
     }
+    
+    function getUrlVars() {
+    	var vars = {};
+    	var parts = window.location.href.replace(/[?&]+([^=&]+)=([^&]*)/gi, function(m,key,value) {
+    		vars[key] = value;
+    	});
+    	return vars;
+    }    
   </script>
 </head>
 <body>
@@ -67,6 +79,7 @@
     <li><a href="#" onclick="thingiview.loadSTL('../examples/objects/walt.stl')">render</a> | <a href="objects/walt.stl">download</a> Walt (way too huge)</li>
     <li><a href="#" onclick="thingiview.loadSTL('../examples/objects/dragonheadfixed.stl')">render</a> | <a href="objects/dragonheadfixed.stl">download</a> Dragon! (huge)</li>
     <li><a href="#" onclick="thingiview.loadSTL('../examples/objects/walt_small.stl')">render</a> | <a href="objects/walt_small.stl">download</a> Walt Low Poly (big, but manageable)</li>
+    <li><a href="#" onclick="thingiview.loadSTL('../examples/objects/voltron_v2bf.stl')">render</a> | <a href="objects/voltron_v2bf.stl">download</a> Voltron</li>
   </ul>
   
   <h3>OBJ Files</h3>
