@@ -1,0 +1,124 @@
+<!doctype html>
+<html lang="en" class="no-js">
+<head>
+  <title>Thingiview.js Client Side Ajax Examples</title>
+
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  
+  <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/chrome-frame/1/CFInstall.min.js"></script>
+  <style>
+   .chromeFrameInstallDefaultStyle {
+     margin-top: 10px;
+     width: 800px;
+     border: 5px solid blue;
+   }
+  </style>
+  
+  <script src="../javascripts/Three.js"></script>
+  <script src="../javascripts/plane.js"></script>
+  <script src="../javascripts/thingiview.js"></script>
+
+  <script>
+    window.onload = function() {
+      // You may want to place these lines inside an onload handler
+      CFInstall.check({
+        mode: "inline", // the default
+        node: "prompt"
+      });
+
+      thingiurlbase = "../javascripts";
+      thingiview = new Thingiview("viewer");
+      thingiview.setObjectColor('#C0D8F0');
+      thingiview.initScene();
+      // thingiview.setShowPlane(true);
+      if (getUrlVars()["stl"]) {
+        thingiview.loadSTL(getUrlVars()["stl"]);
+      } else {
+        thingiview.loadSTL("../examples/objects/cube.stl");
+      }
+    }
+    
+    function getUrlVars() {
+    	var vars = {};
+    	var parts = window.location.href.replace(/[?&]+([^=&]+)=([^&]*)/gi, function(m,key,value) {
+    		vars[key] = value;
+    	});
+    	return vars;
+    }    
+  </script>
+</head>
+<body>
+
+<div id="prompt">
+  <!-- if IE without GCF, prompt goes here -->
+</div>
+
+<header>
+  <h1><a href="http://github.com/tbuser/thingiview.js">Thingiview.js</a> Client Side Ajax Examples</h1>
+</header>
+
+<div id="sidebar" style="float:right;width:40%">
+  <h3>ASCII STL Files</h3>
+  <ul>
+    <li><a href="#" onclick="thingiview.loadSTL('../examples/objects/cube.stl')">render</a> | <a href="objects/cube.stl">download</a> Cube with hole</li>
+    <li><a href="#" onclick="thingiview.loadSTL('../examples/objects/groove_mount.stl')">render</a> | <a href="objects/groove_mount.stl">download</a> Groove Mount</li>
+    <li><a href="#" onclick="thingiview.loadSTL('../examples/objects/wade.stl')">render</a> | <a href="objects/wade.stl">download</a> Wade Extruder (buggy)</li>
+    <li><a href="#" onclick="thingiview.loadSTL('../examples/objects/tree.stl')">render</a> | <a href="objects/tree.stl">download</a> Tree</li>
+    <li><a href="#" onclick="thingiview.loadSTL('../examples/objects/mbotplate1.stl')">render</a> | <a href="objects/mbotplate1.stl">download</a> Prusa Plate 1 (big)</li>
+    <li><a href="#" onclick="thingiview.loadSTL('../examples/objects/mbotplate2.stl')">render</a> | <a href="objects/mbotplate2.stl">download</a> Prusa Plate 2</li>
+    <li><a href="#" onclick="thingiview.loadSTL('../examples/objects/triangle.stl')">render</a> | <a href="objects/triangle.stl">download</a> Twisted Triangle Box (way too huge)</li>
+  </ul>
+  
+  <h3>BINARY STL Files</h3>
+  <ul>
+    <li><a href="#" onclick="thingiview.loadSTL('../examples/objects/cube_binary.stl')">render</a> | <a href="objects/cube_binary.stl">download</a> Cube with hole</li>
+    <li><a href="#" onclick="thingiview.loadSTL('../examples/objects/vader.stl')">render</a> | <a href="objects/vader.stl">download</a> Darth Vader</li>
+    <li><a href="#" onclick="thingiview.loadSTL('../examples/objects/39t17p.stl')">render</a> | <a href="objects/39t17p.stl">download</a> Wade Gear</li>
+    <li><a href="#" onclick="thingiview.loadSTL('../examples/objects/shell.stl')">render</a> | <a href="objects/shell.stl">download</a> Shell (big and buggy)</li>
+    <li><a href="#" onclick="thingiview.loadSTL('../examples/objects/walt.stl')">render</a> | <a href="objects/walt.stl">download</a> Walt (way too huge)</li>
+    <li><a href="#" onclick="thingiview.loadSTL('../examples/objects/dragonheadfixed.stl')">render</a> | <a href="objects/dragonheadfixed.stl">download</a> Dragon! (huge)</li>
+    <li><a href="#" onclick="thingiview.loadSTL('../examples/objects/walt_small.stl')">render</a> | <a href="objects/walt_small.stl">download</a> Walt Low Poly (big, but manageable)</li>
+    <li><a href="#" onclick="thingiview.loadSTL('../examples/objects/voltron_v2bf.stl')">render</a> | <a href="objects/voltron_v2bf.stl">download</a> Voltron</li>
+  </ul>
+  
+  <h3>OBJ Files</h3>
+  <ul>
+    <li><a href="#" onclick="thingiview.loadOBJ('../examples/objects/cube.obj')">render</a> | <a href="objects/cube.obj">download</a> Cube</li>
+    <li><a href="#" onclick="thingiview.loadOBJ('../examples/objects/teddy.obj')">render</a> | <a href="objects/teddy.obj">download</a> Teddy</li>
+    <li><a href="#" onclick="thingiview.loadOBJ('../examples/objects/teapot.obj')">render</a> | <a href="objects/teapot.obj">download</a> Tea Pot (buggy)</li>
+    <li><a href="#" onclick="thingiview.loadOBJ('../examples/objects/walt_small.obj')">render</a> | <a href="objects/walt_small.obj">download</a> Walt Low Poly (big, but manageable)</li>
+  </ul>
+</div>
+
+<p>
+  <input onclick="thingiview.setCameraView('top');" type="button" value="Top" /> 
+  <input onclick="thingiview.setCameraView('side');" type="button" value="Side" /> 
+  <input onclick="thingiview.setCameraView('bottom');" type="button" value="Bottom" /> 
+  <input onclick="thingiview.setCameraView('diagonal');" type="button" value="Diagonal" /> 
+ 
+  <input onclick="thingiview.setCameraZoom(5);" type="button" value="Zoom +" /> 
+  <input onclick="thingiview.setCameraZoom(-5);" type="button" value="Zoom -" /> 
+ 
+  Rotation: <input onclick="thingiview.setRotation(true);" type="button" value="on" /> | <input onclick="thingiview.setRotation(false);" type="button" value="off" />
+</p>
+
+<div id="viewer" style="width:50%;height:400px"></div>
+
+<p>
+  <input onclick="thingiview.setObjectMaterial('wireframe');" type="button" value="Wireframe" /> 
+  <input onclick="thingiview.setObjectMaterial('solid');" type="button" value="Solid" />
+</p>
+
+<p>
+  Plane: <a href="#" onclick="thingiview.setShowPlane(false)">Hide</a> | <a href="#" onclick="thingiview.setShowPlane(true)">Show</a><br/>
+  Background Color: <a href="#" onclick="thingiview.setBackgroundColor('#606060')">Gray</a> | <a href="#" onclick="thingiview.setBackgroundColor('#ffffff')">White</a> | <a href="#" onclick="thingiview.setBackgroundColor('#000000')">Black</a><br/>
+  Object Color: <a href="#" onclick="thingiview.setObjectColor('#ffffff')">White</a> | <a href="#" onclick="thingiview.setObjectColor('#aa0000')">Red</a> | <a href="#" onclick="thingiview.setObjectColor('#CDFECD')">Green</a> | <a href="#" onclick="thingiview.setObjectColor('#C0D8F0')">Blue</a><br/>
+</p>
+
+<footer>
+  &larr; <a href="index.html">Other Examples</a>
+</footer>
+
+</body>
+</html>

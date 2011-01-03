@@ -527,6 +527,20 @@ Thingiview = function(containerId) {
     scope.newWorker('loadOBJString', OBJString);
   }
 
+  this.loadJSON = function(url) {
+    scope.newWorker('loadJSON', url);
+  }
+
+  this.loadArray = function(array) {
+    log("loading array...");
+    geometry = new STLGeometry(array);
+    loadObjectGeometry();
+    clearInterval(rotateTimer);
+    rotateTimer = null;
+    rotateTimer = setInterval(rotateLoop, 1000/60);
+    log("finished loading " + geometry.faces.length + " faces.");
+  }
+
   this.newWorker = function(cmd, param) {
     clearInterval(rotateTimer);
     rotateTimer = null;

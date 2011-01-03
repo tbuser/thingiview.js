@@ -34,6 +34,12 @@ Thingiloader = function(event) {
     this.loadOBJString(file);
   };
 
+  this.loadJSON = function(url) {
+    workerFacadeMessage({'status':'message', 'content':'Downloading ' + url});
+    var file = this.load_binary_resource(url);
+    this.loadJSONString(file);
+  }
+
   this.loadSTLString = function(STLString) {
     workerFacadeMessage({'status':'message', 'content':'Parsing STL String...'});  
     workerFacadeMessage({'status':'complete', 'content':this.ParseSTLString(STLString)});
@@ -47,6 +53,11 @@ Thingiloader = function(event) {
   this.loadOBJString = function(OBJString) {
     workerFacadeMessage({'status':'message', 'content':'Parsing OBJ String...'});
     workerFacadeMessage({'status':'complete', 'content':this.ParseOBJString(OBJString)});
+  }
+
+  this.loadJSONString = function(JSONString) {
+    workerFacadeMessage({'status':'message', 'content':'Parsing JSON String...'});
+    workerFacadeMessage({'status':'complete', 'content':eval(JSONString)});
   }
 
   this.ParseSTLBinary = function(STLBinary) {
@@ -206,6 +217,9 @@ Thingiloader = function(event) {
     break;
     case "loadOBJString":
     this.loadOBJString(event.data.param);
+    break;
+    case "loadJSON":
+    this.loadJSON(event.data.param);
     break;
   }  
 
