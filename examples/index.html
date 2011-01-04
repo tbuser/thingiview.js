@@ -30,12 +30,18 @@
   <li>
     <a href="server_side_ajax.html">Server Side Ajax</a><br/>
     This uses a php script to pre-parse the object (ascii or binary) into a format that thingiview can load very fast and then dynamically load it using 
-    ajax.  Downside of course is it puts some load on the server and still has the ajax same origin limitations.
+    ajax.  Downside of course is it puts a load on the server and still has the ajax same origin limitations.  Note: It's very likely that unless you
+    have a really powerful server, you might need to increase the php timeout otherwise it could fail on really large models.
   </li>
   <li>
     <a href="server_side_inline.html">Server Side Inline</a><br/>
     This one shows how you can use the server side php script to pre-parse and then generate the javascript inline.  This makes it suitable to be
     used as a widget on other sites.
+  </li>
+  <li>
+    <a href="pre_parsed_json_inline.html">Pre-Parsed JSON Inline</a><br/>
+    The fastest of all options and the least amount of load on the server.  This requires that you convert your models into the JSON format Thingiview.js
+    uses internally and then save that JSON to a file.  Then you can just load in that file whenever you want to view that model.  Basically caching it.
   </li>
 </ul>
 
