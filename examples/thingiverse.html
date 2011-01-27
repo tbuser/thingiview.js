@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="en" class="no-js">
+<head>
+  <title>Thingiview.js Thingiverse Download Example</title>
+
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  
+  <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/chrome-frame/1/CFInstall.min.js"></script>
+  <style>
+   .chromeFrameInstallDefaultStyle {
+     margin-top: 10px;
+     width: 800px;
+     border: 5px solid blue;
+   }
+  </style>
+  
+  <script src="../javascripts/Three.js"></script>
+  <script src="../javascripts/plane.js"></script>
+  <script src="../javascripts/thingiview.js"></script>
+
+  <script>
+    window.onload = function() {
+      // You may want to place these lines inside an onload handler
+      CFInstall.check({
+        mode: "inline", // the default
+        node: "prompt"
+      });
+
+      thingiurlbase = "../javascripts";
+      thingiview = new Thingiview("viewer");
+      thingiview.setObjectColor('#C0D8F0');
+      thingiview.initScene();
+      // thingiview.setShowPlane(true);
+      thingiview.loadJSON("../php/download.php?url=http://thingiverse.com/download:" + getUrlVars()["download"]);
+    }
+    
+    function getUrlVars() {
+    	var vars = {};
+    	var parts = window.location.href.replace(/[?&]+([^=&]+)=([^&]*)/gi, function(m,key,value) {
+    		vars[key] = value;
+    	});
+    	return vars;
+    }    
+  </script>
+</head>
+<body>
+
+<div id="prompt">
+  <!-- if IE without GCF, prompt goes here -->
+</div>
+
+<div id="viewer" style="width:100%;min-height:300px"></div>
+
+</body>
+</html>

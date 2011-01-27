@@ -1,25 +1,34 @@
 <?php
 
 // server needs a good cpu!  Might need to make timeout higher if server chokes on really really big models...
-set_time_limit(300);
+set_time_limit(3000);
 
 include('convert.php');
 
 $file = $_GET['file'];
 
 $file_parts = pathinfo($file);
+
+$handle = fopen($file, 'rb');
+
+$contents = "";
+
+while (!feof($handle)) {
+  $contents .= fgets($handle);
+}
+
+$contents = preg_replace('/$\s+.*/', '', $contents);
+
 switch($file_parts['extension']){
   case 'stl':
-    $contents = file_get_contents($file);    
-    $contents = preg_replace('/$\s+.*/', '', $contents);
     if (stripos($contents, 'solid') === FALSE) {
-      $result = parse_stl_binary($file);
+      $result = parse_stl_binary($handle);
     } else {
-      $result = parse_stl_string($file);
+      $result = parse_stl_string($contents);
     }  
     break;
   case 'obj':
-    $result = parse_obj_string($file);
+    $result = parse_obj_string($contents);
     break;
 }
 

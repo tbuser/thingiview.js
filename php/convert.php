@@ -1,7 +1,7 @@
 <?php
 
-function parse_stl_string($filename) {
-  $lines    = file($filename);
+function parse_stl_string($str) {
+  $lines = split("\n", $str);
   
   $vertexes = array();
   $normals  = array();
@@ -42,14 +42,15 @@ function parse_stl_string($filename) {
   return array($vertexes, array(), $faces);
 }
 
-function parse_stl_binary($filename) {
+function parse_stl_binary($fp) {
   $vertexes = array();
   $normals  = array();
   $faces    = array();
 
   $face_vertexes = array();
 
-  $fp = fopen($filename, "rb");
+  // $fp = fopen($filename, "rb");
+  rewind($fp);
 
   // skip header
   $data = fread($fp, 80);
@@ -91,8 +92,8 @@ function parse_stl_binary($filename) {
   return array($vertexes, array(), $faces);
 }
 
-function parse_obj_string($filename) {
-  $lines    = file($filename);
+function parse_obj_string($str) {
+  $lines    = split("\n", $str);
 
   $vertexes = array();
   $normals  = array();
