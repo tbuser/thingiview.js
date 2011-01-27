@@ -83,23 +83,6 @@ Thingiview = function(containerId) {
     pointLight.position.z = 10;
     scene.addLight(pointLight);
 
-    testCanvas = document.createElement('canvas');
-    try {
-      if (testCanvas.getContext('experimental-webgl')) {
-        // showPlane = false;
-        isWebGl = true;
-        renderer = new THREE.WebGLRenderer();
-        // renderer = new THREE.CanvasRenderer();
-      } else {
-        renderer = new THREE.CanvasRenderer();
-      }
-    } catch(e) {
-      renderer = new THREE.CanvasRenderer();
-      // log("failed webgl detection");
-    }
-
-    renderer.setSize(container.innerWidth, container.innerHeight);
-
     progressBar = document.createElement('div');
     progressBar.style.position = 'absolute';
     progressBar.style.top = '0px';
@@ -133,12 +116,29 @@ Thingiview = function(containerId) {
       loadPlaneGeometry();
     }
     
+    this.setCameraView(cameraView);
+    this.setObjectMaterial(objectMaterial);
+
+    testCanvas = document.createElement('canvas');
+    try {
+      if (testCanvas.getContext('experimental-webgl')) {
+        // showPlane = false;
+        isWebGl = true;
+        renderer = new THREE.WebGLRenderer();
+        // renderer = new THREE.CanvasRenderer();
+      } else {
+        renderer = new THREE.CanvasRenderer();
+      }
+    } catch(e) {
+      renderer = new THREE.CanvasRenderer();
+      // log("failed webgl detection");
+    }
+
+    // renderer.setSize(container.innerWidth, container.innerHeight);
+
   	renderer.setSize(width, height);
     renderer.domElement.style.backgroundColor = backgroundColor;
   	container.appendChild(renderer.domElement);
-
-    this.setCameraView(cameraView);
-    this.setObjectMaterial(objectMaterial);
 
     // stats = new Stats();
     // stats.domElement.style.position  = 'absolute';
@@ -602,15 +602,13 @@ Thingiview = function(containerId) {
   }
 
   function loadPlaneGeometry() {
-    // TODO: switch to lines instead of the Plane object so we can get rid of the horizontal lines...
+    // TODO: switch to lines instead of the Plane object so we can get rid of the horizontal lines in canvas renderer...
     plane = new THREE.Mesh(new Plane(100, 100, 10, 10), new THREE.MeshBasicMaterial({color:0xafafaf,wireframe:true}));
     scene.addObject(plane);
   }
 
   function loadObjectGeometry() {
     if (scene && geometry) {
-      // scene.removeObject(object);
-    
       if (objectMaterial == 'wireframe') {
         // material = new THREE.MeshColorStrokeMaterial(objectColor, 1, 1);
         material = new THREE.MeshBasicMaterial({color:objectColor,wireframe:true});
@@ -618,18 +616,22 @@ Thingiview = function(containerId) {
         if (isWebGl) {
           // material = new THREE.MeshPhongMaterial(objectColor, objectColor, 0xffffff, 50, 1.0);
           // material = new THREE.MeshColorFillMaterial(objectColor);
-          material = new THREE.MeshLambertMaterial({color:objectColor, shading: THREE.FlatShading});
           // material = new THREE.MeshLambertMaterial({color:objectColor});
+          material = new THREE.MeshLambertMaterial({color:objectColor, shading: THREE.FlatShading});
         } else {
           // material = new THREE.MeshColorFillMaterial(objectColor);
           material = new THREE.MeshLambertMaterial({color:objectColor, shading: THREE.FlatShading});
         }
       }
 
-      // shouldn't be needed, but this fixes a bug with webgl not removing previous object when loading a new one dynamically
+      // scene.removeObject(object);      
+
       if (object) {
-        object.geometry = geometry;
-        object.material = material;
+        // shouldn't be needed, but this fixes a bug with webgl not removing previous object when loading a new one dynamically
+        object.materials = [new THREE.MeshBasicMaterial({color:0xffffff, opacity:0})];
+        scene.removeObject(object);        
+        // object.geometry = geometry;
+        // object.materials = [material];
       }
 
       object = new THREE.Mesh(geometry, material);
@@ -643,7 +645,7 @@ Thingiview = function(containerId) {
     
       targetXRotation = 0;
       targetYRotation = 0;
-    
+
       sceneLoop();
     }
   }
@@ -681,7 +683,9 @@ var STLGeometry = function(STLArray) {
   // log("computing centroids...");
   this.computeCentroids();
   // log("computing normals...");
-  this.computeNormals();
+  // this.computeNormals();
+	this.computeFaceNormals();
+	this.sortFacesByMaterial();
   // log("finished building geometry");
 }
 
