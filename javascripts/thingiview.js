@@ -37,7 +37,10 @@ Thingiview = function(containerId) {
   var alertBox     = null;
   
   var timer        = null;
-  var rotateTimer  = null;
+
+  var rotateTimer    = null;
+  var rotateListener = null;
+  var wasRotating    = null;
 
   var cameraView = 'diagonal';
   var cameraZoom = 0;
@@ -226,9 +229,13 @@ Thingiview = function(containerId) {
 
     event.preventDefault();
   	mouseDown = true;
-  	
-  	clearInterval(rotateTimer);
-    rotateTimer = null;
+    
+    if(scope.getRotation()){
+      wasRotating = true;
+      scope.setRotation(false);
+    } else {
+      wasRotating = false;
+    }
     
   	mouseXOnMouseDown = event.clientX - windowHalfX;
   	mouseYOnMouseDown = event.clientY - windowHalfY;
@@ -261,6 +268,9 @@ Thingiview = function(containerId) {
       if (!mouseOver) {
         clearInterval(timer);
         timer = null;
+      }
+      if (wasRotating) {
+        scope.setRotation(true);
       }
     }
   }
@@ -389,6 +399,20 @@ Thingiview = function(containerId) {
     } else {
       clearInterval(rotateTimer);
       rotateTimer = null;
+    }
+
+    scope.onSetRotation();
+  }
+
+  this.onSetRotation = function(callback) {
+    if(callback === undefined){
+      if(rotateListener !== null){
+        try{
+          rotateListener(scope.getRotation());
+        } catch(ignored) {}
+      }
+    } else {
+      rotateListener = callback;
     }
   }
 
@@ -547,15 +571,13 @@ Thingiview = function(containerId) {
     log("loading array...");
     geometry = new STLGeometry(array);
     loadObjectGeometry();
-    clearInterval(rotateTimer);
-    rotateTimer = null;
-    rotateTimer = setInterval(rotateLoop, 1000/60);
+    scope.setRotation(false);
+    scope.setRotation(true);
     log("finished loading " + geometry.faces.length + " faces.");
   }
 
   this.newWorker = function(cmd, param) {
-    clearInterval(rotateTimer);
-    rotateTimer = null;
+    scope.setRotation(false);
   	
     var worker = new WorkerFacade(thingiurlbase + '/thingiloader.js');
     
@@ -568,9 +590,8 @@ Thingiview = function(containerId) {
         progressBar.innerHTML = '';
         progressBar.style.display = 'none';
 
-        clearInterval(rotateTimer);
-        rotateTimer = null;
-        rotateTimer = setInterval(rotateLoop, 1000/60);
+        scope.setRotation(false);
+        scope.setRotation(true);
         log("finished loading " + geometry.faces.length + " faces.");
       } else if (event.data.status == "progress") {
         progressBar.style.display = 'block';
