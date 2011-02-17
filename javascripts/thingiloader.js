@@ -135,7 +135,7 @@ Thingiloader = function(event) {
 
     var points = STLString.split(" ");
 
-    workerFacadeMessage({'status':'message', 'content':'Parsing vertexes...'});
+    workerFacadeMessage({'status':'message', 'content':'Parsing vertices...'});
     for (var i=0; i<points.length/12-1; i++) {
       workerFacadeMessage({'status':'progress', 'content':parseInt(i / (points.length/12-1) * 100) + '%'});
     
