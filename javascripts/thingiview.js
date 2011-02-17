@@ -353,6 +353,10 @@ Thingiview = function(containerId) {
     sceneLoop();
   }
 
+  this.getShowPlane = function(){
+    return showPlane;
+  }
+
   this.setShowPlane = function(show) {
     showPlane = show;
     
@@ -371,6 +375,10 @@ Thingiview = function(containerId) {
     }
     
     sceneLoop();
+  }
+
+  this.getRotation = function() {
+    return rotateTimer !== null;
   }
 
   this.setRotation = function(rotate) {
@@ -485,6 +493,10 @@ Thingiview = function(containerId) {
     }
 
     sceneLoop();
+  }
+
+  this.getObjectMaterial = function() {
+    return objectMaterial;
   }
 
   this.setObjectMaterial = function(type) {
