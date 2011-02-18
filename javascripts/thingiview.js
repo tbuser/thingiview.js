@@ -65,7 +65,7 @@ Thingiview = function(containerId) {
     container.style.position = 'relative';
     container.innerHTML      = '';
 
-  	camera = new THREE.Camera(50, width/ height, 1, 100000);
+  	camera = new THREE.Camera(45, width/ height, 1, 100000);
   	camera.updateMatrix();
 
   	scene  = new THREE.Scene();
@@ -488,6 +488,8 @@ Thingiview = function(containerId) {
     mouseY            = targetYRotation;
     mouseYOnMouseDown = targetYRotation;
     
+    // scope.centerCamera();
+    
     sceneLoop();
   }
 
@@ -567,12 +569,40 @@ Thingiview = function(containerId) {
     scope.newWorker('loadJSON', url);
   }
 
+  this.centerCamera = function() {
+    if (geometry) {
+      log("bounding sphere " + geometry.boundingSphere.radius);
+      camera.target.position.x = geometry.look_x;
+      camera.target.position.y = geometry.look_y;
+      camera.target.position.z = geometry.look_z;
+    
+      distance = geometry.boundingSphere.radius / Math.sin((camera.fov/2) * (Math.PI / 180));
+      log("sin = " + Math.sin((camera.fov/2) * (Math.PI / 180)));
+      log("distance = " + distance);
+
+      // This isn't right, but it's oh so close...
+      // the math is making my brain hurt
+      camera.position.x = 0;
+      camera.position.y = camera.target.position.y - distance/1.5;
+      camera.position.z = camera.target.position.z + distance/1.5;
+
+      log("cam x = " + camera.position.x);
+      log("cam y = " + camera.position.y);
+      log("cam z = " + camera.position.z);
+
+      // camera.position.y = -70;
+      // camera.position.z = 70;      
+      // camera.position.x = camera.target.position.x;
+    }
+  }
+
   this.loadArray = function(array) {
     log("loading array...");
     geometry = new STLGeometry(array);
     loadObjectGeometry();
     scope.setRotation(false);
     scope.setRotation(true);
+    scope.centerCamera();
     log("finished loading " + geometry.faces.length + " faces.");
   }
 
@@ -593,6 +623,7 @@ Thingiview = function(containerId) {
         scope.setRotation(false);
         scope.setRotation(true);
         log("finished loading " + geometry.faces.length + " faces.");
+        scope.centerCamera();
       } else if (event.data.status == "progress") {
         progressBar.style.display = 'block';
         progressBar.style.width = event.data.content;
@@ -720,6 +751,28 @@ var STLGeometry = function(STLArray) {
 	this.computeFaceNormals();
 	this.sortFacesByMaterial();
   // log("finished building geometry");
+
+  scope.min_x = 0;
+  scope.min_y = 0;
+  scope.min_z = 0;
+  
+  scope.max_x = 0;
+  scope.max_y = 0;
+  scope.max_z = 0;
+  
+  for (var v = 0, vl = scope.vertices.length; v < vl; v ++) {
+		scope.max_x = Math.max(scope.max_x, scope.vertices[v].position.x);
+		scope.max_y = Math.max(scope.max_y, scope.vertices[v].position.y);
+		scope.max_z = Math.max(scope.max_z, scope.vertices[v].position.z);
+		                                    
+		scope.min_x = Math.min(scope.min_x, scope.vertices[v].position.x);
+		scope.min_y = Math.min(scope.min_y, scope.vertices[v].position.y);
+		scope.min_z = Math.min(scope.min_z, scope.vertices[v].position.z);
+	}
+
+  scope.look_x = (scope.max_x + scope.min_x)/2;
+  scope.look_y = (scope.max_y + scope.min_y)/2;
+  scope.look_z = (scope.max_z + scope.min_z)/2;
 }
 
 STLGeometry.prototype = new THREE.Geometry();
@@ -809,3 +862,17 @@ if(typeof(window) === "undefined"){
 }
 
 */
+
+Array.prototype.max = function() {
+  var max = this[0];
+  var len = this.length;
+  for (var i = 1; i < len; i++) if (this[i] > max) max = this[i];
+  return max;
+}
+
+Array.prototype.min = function() {
+  var min = this[0];
+  var len = this.length;
+  for (var i = 1; i < len; i++) if (this[i] < min) min = this[i];
+  return min;
+}
