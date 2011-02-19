@@ -73,14 +73,14 @@ Thingiview = function(containerId) {
     ambientLight = new THREE.AmbientLight(0x202020);
     scene.addLight(ambientLight);
     
-    directionalLight = new THREE.DirectionalLight(0xffffff, 0.5);
+    directionalLight = new THREE.DirectionalLight(0xffffff, 0.75);
     directionalLight.position.x = 1;
     directionalLight.position.y = 1;
     directionalLight.position.z = 2;
     directionalLight.position.normalize();
     scene.addLight(directionalLight);
     
-    pointLight = new THREE.PointLight(0xffffff);
+    pointLight = new THREE.PointLight(0xffffff, 0.3);
     pointLight.position.x = 0;
     pointLight.position.y = -25;
     pointLight.position.z = 10;
@@ -574,6 +574,14 @@ Thingiview = function(containerId) {
       // scope.setCameraZoom(-distance/1.8);
       // scope.setCameraZoom(-distance/1.5);
       scope.setCameraZoom(-distance/1.9);
+
+      directionalLight.position.x = geometry.min_y * 2;
+      directionalLight.position.y = geometry.min_y * 2;
+      directionalLight.position.z = geometry.max_z * 2;
+
+      pointLight.position.x = geometry.center_y;
+      pointLight.position.y = geometry.center_y;
+      pointLight.position.z = geometry.max_z * 2;
     } else {
       // set to any valid position so it doesn't fail before geometry is available
       camera.position.y = -70;
