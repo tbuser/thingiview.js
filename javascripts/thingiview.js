@@ -435,48 +435,31 @@ Thingiview = function(containerId) {
     }
     
     if (dir == 'top') {
-      camera.position.y = 0;
-      camera.position.z = 100;
-
-      camera.target.position.z = 0;
+      // camera.position.y = 0;
+      // camera.position.z = 100;
+      // camera.target.position.z = 0;
       if (showPlane) {
         plane.flipSided = false;
       }
     } else if (dir == 'side') {
-      // camera.position.y = 100;
-      // camera.position.z = -0.1;
-      // camera.position.z = 10;
-      // camera.target.position.z = 50;
-
-      // if (object) {
-      //   object.rotation.x = -0.75;
-      // }
-      // 
-      // if (showPlane) {
-      //   plane.rotation.x = -0.75;
-      // }
-
-      camera.position.y = -70;
-      camera.position.z = 70;
+      // camera.position.y = -70;
+      // camera.position.z = 70;
+      // camera.target.position.z = 0;
       targetYRotation = -4.5;
-
-      camera.target.position.z = 0;
       if (showPlane) {
         plane.flipSided = false;
       }
     } else if (dir == 'bottom') {
-      camera.position.y = 0;
-      camera.position.z = -100;
-
-      camera.target.position.z = 0;
+      // camera.position.y = 0;
+      // camera.position.z = -100;
+      // camera.target.position.z = 0;
       if (showPlane) {
         plane.flipSided = true;
       }
     } else {
-      camera.position.y = -70;
-      camera.position.z = 70;
-
-      camera.target.position.z = 0;
+      // camera.position.y = -70;
+      // camera.position.z = 70;
+      // camera.target.position.z = 0;
       if (showPlane) {
         plane.flipSided = false;
       }
@@ -488,7 +471,7 @@ Thingiview = function(containerId) {
     mouseY            = targetYRotation;
     mouseYOnMouseDown = targetYRotation;
     
-    // scope.centerCamera();
+    scope.centerCamera();
     
     sceneLoop();
   }
@@ -571,28 +554,31 @@ Thingiview = function(containerId) {
 
   this.centerCamera = function() {
     if (geometry) {
-      log("bounding sphere " + geometry.boundingSphere.radius);
-      camera.target.position.x = geometry.look_x;
-      camera.target.position.y = geometry.look_y;
-      camera.target.position.z = geometry.look_z;
-    
+      // Using method from http://msdn.microsoft.com/en-us/library/bb197900(v=xnagamestudio.10).aspx
+      // log("bounding sphere radius = " + geometry.boundingSphere.radius);
+
+      // look at the center of the object
+      camera.target.position.x = geometry.center_x;
+      camera.target.position.y = geometry.center_y;
+      camera.target.position.z = geometry.center_z;
+
+      // set camera position to center of sphere
+      camera.position.x = geometry.center_x;
+      camera.position.y = geometry.center_y;
+      camera.position.z = geometry.center_z;
+
+      // find distance to center
       distance = geometry.boundingSphere.radius / Math.sin((camera.fov/2) * (Math.PI / 180));
-      log("sin = " + Math.sin((camera.fov/2) * (Math.PI / 180)));
-      log("distance = " + distance);
 
-      // This isn't right, but it's oh so close...
-      // the math is making my brain hurt
-      camera.position.x = 0;
-      camera.position.y = camera.target.position.y - distance/1.5;
-      camera.position.z = camera.target.position.z + distance/1.5;
-
-      log("cam x = " + camera.position.x);
-      log("cam y = " + camera.position.y);
-      log("cam z = " + camera.position.z);
-
-      // camera.position.y = -70;
-      // camera.position.z = 70;      
-      // camera.position.x = camera.target.position.x;
+      // zoom backwards about half that distance, I don't think I'm doing the math or backwards vector calculation correctly?
+      // scope.setCameraZoom(-distance/1.8);
+      // scope.setCameraZoom(-distance/1.5);
+      scope.setCameraZoom(-distance/1.9);
+    } else {
+      // set to any valid position so it doesn't fail before geometry is available
+      camera.position.y = -70;
+      camera.position.z = 70;
+      camera.target.position.z = 0;
     }
   }
 
@@ -770,9 +756,9 @@ var STLGeometry = function(STLArray) {
 		scope.min_z = Math.min(scope.min_z, scope.vertices[v].position.z);
 	}
 
-  scope.look_x = (scope.max_x + scope.min_x)/2;
-  scope.look_y = (scope.max_y + scope.min_y)/2;
-  scope.look_z = (scope.max_z + scope.min_z)/2;
+  scope.center_x = (scope.max_x + scope.min_x)/2;
+  scope.center_y = (scope.max_y + scope.min_y)/2;
+  scope.center_z = (scope.max_z + scope.min_z)/2;
 }
 
 STLGeometry.prototype = new THREE.Geometry();
@@ -862,17 +848,3 @@ if(typeof(window) === "undefined"){
 }
 
 */
-
-Array.prototype.max = function() {
-  var max = this[0];
-  var len = this.length;
-  for (var i = 1; i < len; i++) if (this[i] > max) max = this[i];
-  return max;
-}
-
-Array.prototype.min = function() {
-  var min = this[0];
-  var len = this.length;
-  for (var i = 1; i < len; i++) if (this[i] < min) min = this[i];
-  return min;
-}
