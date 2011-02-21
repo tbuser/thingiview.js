@@ -60,50 +60,54 @@ Thingiloader = function(event) {
     workerFacadeMessage({'status':'complete', 'content':eval(JSONString)});
   }
 
-  this.ParseSTLBinary = function(STLBinary) {
-    var vertexes  = [];
-    var normals   = [];
-    var faces     = [];
-  
-    var face_vertexes = [];
+  this.ParseSTLBinary = function(input) {
+    // Skip the header.
+    input.seek(80);
 
-    STLBinary.seek(0);
+    // Load the number of vertices.
+    var count = input.readUInt32();
 
-    header = STLBinary.readString(80);
-  
-    count = STLBinary.readUInt32();
+    // During the parse loop we maintain the following data structures:
+    var vertices = [];   // Append-only list of all unique vertices.
+    var vert_hash = {};  // Mapping from vertex to index in 'vertices', above.
+    var faces    = [];   // List of triangle descriptions, each a three-element
+                         // list of indices in 'vertices', above.
 
     for (var i = 0; i < count; i++) {
-      workerFacadeMessage({'status':'message', 'content':'Parsing ' + (i+1) + ' of ' + count + ' polygons...'});
-      workerFacadeMessage({'status':'progress', 'content':parseInt(i / count * 100) + '%'});
-      
-      // normals.push([STLBinary.readFloat(),STLBinary.readFloat(),STLBinary.readFloat()]);
-      STLBinary.seek(STLBinary.getPosition() + ((32 >> 3) * 3));
-    
-      for (var x = 0; x < 3; x++) {
-        vertex = [STLBinary.readFloat(),STLBinary.readFloat(),STLBinary.readFloat()];
-      
-        if (vertexes.myIndexOf(vertex) == -1) {
-          vertexes.push(vertex);
-        }
-
-        if (face_vertexes[i] == undefined) {
-          face_vertexes[i] = [];
-        }
-        face_vertexes[i].push(vertex);
-      
+      if (i % 100 == 0) {
+        workerFacadeMessage({
+            'status':'message',
+            'content':'Parsing ' + (i+1) + ' of ' + count + ' polygons...'
+          });
+        workerFacadeMessage({
+            'status':'progress',
+            'content':parseInt(i / count * 100) + '%'
+          });
       }
+      
+      // Skip the normal (3 single-precision floats)
+      input.seek(input.getPosition() + 12);
+
+      var face_indices = [];
+      for (var x = 0; x < 3; x++) {
+        var vertex = [input.readFloat(), input.readFloat(), input.readFloat()];
+      
+        var vertexIndex = vert_hash[vertex];
+        if (vertexIndex == null) {
+          vertexIndex = vertices.length;
+          vertices.push(vertex);
+          vert_hash[vertex] = vertexIndex;
+        }
+
+        face_indices.push(vertexIndex);
+      }
+      faces.push(face_indices);
     
-      attribute = STLBinary.readUInt16();
+      // Skip the "attribute" field (unused in common models)
+      input.readUInt16();
     }
 
-    workerFacadeMessage({'status':'message', 'content':'Building faces...'});
-    for (var i=0; i<face_vertexes.length; i++) {
-      workerFacadeMessage({'status':'progress', 'content':parseInt(i / face_vertexes.length * 100) + '%'});
-      faces[i] = [ vertexes.myIndexOf(face_vertexes[i][0]), vertexes.myIndexOf(face_vertexes[i][1]), vertexes.myIndexOf(face_vertexes[i][2]) ];
-    }
-  
-    return [vertexes, normals, faces];
+    return [vertices, [], faces];
   };
 
   // build stl's vertex and face arrays
@@ -113,6 +117,7 @@ Thingiloader = function(event) {
     var faces     = [];
   
     var face_vertexes = [];
+    var vert_hash = {}
 
     // console.log(STLString);
 
@@ -137,34 +142,28 @@ Thingiloader = function(event) {
 
     workerFacadeMessage({'status':'message', 'content':'Parsing vertices...'});
     for (var i=0; i<points.length/12-1; i++) {
-      workerFacadeMessage({'status':'progress', 'content':parseInt(i / (points.length/12-1) * 100) + '%'});
-    
-      // normal = [parseFloat(points[block_start]), parseFloat(points[block_start+1]), parseFloat(points[block_start+2])]
-      // normals.push(normal)
-    
-      for (var x=0; x<3; x++) {
-        vertex = [parseFloat(points[block_start+x*3+3]), parseFloat(points[block_start+x*3+4]), parseFloat(points[block_start+x*3+5])];
-
-        if (vertexes.myIndexOf(vertex) == -1) {
-          vertexes.push(vertex);
-          // console.log(vertex);
-        }
-
-        if (face_vertexes[i] == undefined) {
-          face_vertexes[i] = [];
-        }
-        face_vertexes[i].push(vertex);
+      if ((i % 100) == 0) {
+        workerFacadeMessage({'status':'progress', 'content':parseInt(i / (points.length/12-1) * 100) + '%'});
       }
+    
+      var face_indices = [];
+      for (var x=0; x<3; x++) {
+        var vertex = [parseFloat(points[block_start+x*3+3]), parseFloat(points[block_start+x*3+4]), parseFloat(points[block_start+x*3+5])];
+
+        var vertexIndex = vert_hash[vertex];
+        if (vertexIndex == null) {
+          vertexIndex = vertexes.length;
+          vertexes.push(vertex);
+          vert_hash[vertex] = vertexIndex;
+        }
+
+        face_indices.push(vertexIndex);
+      }
+      faces.push(face_indices);
     
       block_start = block_start + 12;
     }
 
-    workerFacadeMessage({'status':'message', 'content':'Building faces...'});
-    for (var i=0; i<face_vertexes.length; i++) {
-      workerFacadeMessage({'status':'progress', 'content':parseInt(i / face_vertexes.length * 100) + '%'});
-      faces[i] = [ vertexes.myIndexOf(face_vertexes[i][0]), vertexes.myIndexOf(face_vertexes[i][1]), vertexes.myIndexOf(face_vertexes[i][2]) ];
-    }
-  
     return [vertexes, normals, faces];
   };
 
