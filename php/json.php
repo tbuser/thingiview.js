@@ -11,6 +11,10 @@ $file_parts = pathinfo($file);
 
 $handle = fopen($file, 'rb');
 
+if ($handle == FALSE) {
+  trigger_error("Failed to open file $file");
+}
+
 $contents = "";
 
 while (!feof($handle)) {

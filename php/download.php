@@ -31,6 +31,9 @@ if (!file_exists("$cache_dir/$json_filename")) {
 
   if (stripos($contents, 'solid') === FALSE) {
     $handle = fopen("$cache_dir/$stl_filename", 'rb');
+    if (!$handle) {
+      trigger_error("Failed to open file $cache_dir/$stl_filename");
+    }
     $result = parse_stl_binary($handle);
   } else {
     $result = parse_stl_string($contents);
