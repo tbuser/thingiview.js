@@ -65,7 +65,7 @@ Thingiview = function(containerId) {
     container.style.position = 'relative';
     container.innerHTML      = '';
 
-  	camera = new THREE.Camera(50, width/ height, 1, 100000);
+  	camera = new THREE.Camera(45, width/ height, 1, 100000);
   	camera.updateMatrix();
 
   	scene  = new THREE.Scene();
@@ -73,14 +73,14 @@ Thingiview = function(containerId) {
     ambientLight = new THREE.AmbientLight(0x202020);
     scene.addLight(ambientLight);
     
-    directionalLight = new THREE.DirectionalLight(0xffffff, 0.5);
+    directionalLight = new THREE.DirectionalLight(0xffffff, 0.75);
     directionalLight.position.x = 1;
     directionalLight.position.y = 1;
     directionalLight.position.z = 2;
     directionalLight.position.normalize();
     scene.addLight(directionalLight);
     
-    pointLight = new THREE.PointLight(0xffffff);
+    pointLight = new THREE.PointLight(0xffffff, 0.3);
     pointLight.position.x = 0;
     pointLight.position.y = -25;
     pointLight.position.z = 10;
@@ -435,48 +435,31 @@ Thingiview = function(containerId) {
     }
     
     if (dir == 'top') {
-      camera.position.y = 0;
-      camera.position.z = 100;
-
-      camera.target.position.z = 0;
+      // camera.position.y = 0;
+      // camera.position.z = 100;
+      // camera.target.position.z = 0;
       if (showPlane) {
         plane.flipSided = false;
       }
     } else if (dir == 'side') {
-      // camera.position.y = 100;
-      // camera.position.z = -0.1;
-      // camera.position.z = 10;
-      // camera.target.position.z = 50;
-
-      // if (object) {
-      //   object.rotation.x = -0.75;
-      // }
-      // 
-      // if (showPlane) {
-      //   plane.rotation.x = -0.75;
-      // }
-
-      camera.position.y = -70;
-      camera.position.z = 70;
+      // camera.position.y = -70;
+      // camera.position.z = 70;
+      // camera.target.position.z = 0;
       targetYRotation = -4.5;
-
-      camera.target.position.z = 0;
       if (showPlane) {
         plane.flipSided = false;
       }
     } else if (dir == 'bottom') {
-      camera.position.y = 0;
-      camera.position.z = -100;
-
-      camera.target.position.z = 0;
+      // camera.position.y = 0;
+      // camera.position.z = -100;
+      // camera.target.position.z = 0;
       if (showPlane) {
         plane.flipSided = true;
       }
     } else {
-      camera.position.y = -70;
-      camera.position.z = 70;
-
-      camera.target.position.z = 0;
+      // camera.position.y = -70;
+      // camera.position.z = 70;
+      // camera.target.position.z = 0;
       if (showPlane) {
         plane.flipSided = false;
       }
@@ -487,6 +470,8 @@ Thingiview = function(containerId) {
     
     mouseY            = targetYRotation;
     mouseYOnMouseDown = targetYRotation;
+    
+    scope.centerCamera();
     
     sceneLoop();
   }
@@ -567,12 +552,51 @@ Thingiview = function(containerId) {
     scope.newWorker('loadJSON', url);
   }
 
+  this.centerCamera = function() {
+    if (geometry) {
+      // Using method from http://msdn.microsoft.com/en-us/library/bb197900(v=xnagamestudio.10).aspx
+      // log("bounding sphere radius = " + geometry.boundingSphere.radius);
+
+      // look at the center of the object
+      camera.target.position.x = geometry.center_x;
+      camera.target.position.y = geometry.center_y;
+      camera.target.position.z = geometry.center_z;
+
+      // set camera position to center of sphere
+      camera.position.x = geometry.center_x;
+      camera.position.y = geometry.center_y;
+      camera.position.z = geometry.center_z;
+
+      // find distance to center
+      distance = geometry.boundingSphere.radius / Math.sin((camera.fov/2) * (Math.PI / 180));
+
+      // zoom backwards about half that distance, I don't think I'm doing the math or backwards vector calculation correctly?
+      // scope.setCameraZoom(-distance/1.8);
+      // scope.setCameraZoom(-distance/1.5);
+      scope.setCameraZoom(-distance/1.9);
+
+      directionalLight.position.x = geometry.min_y * 2;
+      directionalLight.position.y = geometry.min_y * 2;
+      directionalLight.position.z = geometry.max_z * 2;
+
+      pointLight.position.x = geometry.center_y;
+      pointLight.position.y = geometry.center_y;
+      pointLight.position.z = geometry.max_z * 2;
+    } else {
+      // set to any valid position so it doesn't fail before geometry is available
+      camera.position.y = -70;
+      camera.position.z = 70;
+      camera.target.position.z = 0;
+    }
+  }
+
   this.loadArray = function(array) {
     log("loading array...");
     geometry = new STLGeometry(array);
     loadObjectGeometry();
     scope.setRotation(false);
     scope.setRotation(true);
+    scope.centerCamera();
     log("finished loading " + geometry.faces.length + " faces.");
   }
 
@@ -593,6 +617,7 @@ Thingiview = function(containerId) {
         scope.setRotation(false);
         scope.setRotation(true);
         log("finished loading " + geometry.faces.length + " faces.");
+        scope.centerCamera();
       } else if (event.data.status == "progress") {
         progressBar.style.display = 'block';
         progressBar.style.width = event.data.content;
@@ -720,6 +745,28 @@ var STLGeometry = function(STLArray) {
 	this.computeFaceNormals();
 	this.sortFacesByMaterial();
   // log("finished building geometry");
+
+  scope.min_x = 0;
+  scope.min_y = 0;
+  scope.min_z = 0;
+  
+  scope.max_x = 0;
+  scope.max_y = 0;
+  scope.max_z = 0;
+  
+  for (var v = 0, vl = scope.vertices.length; v < vl; v ++) {
+		scope.max_x = Math.max(scope.max_x, scope.vertices[v].position.x);
+		scope.max_y = Math.max(scope.max_y, scope.vertices[v].position.y);
+		scope.max_z = Math.max(scope.max_z, scope.vertices[v].position.z);
+		                                    
+		scope.min_x = Math.min(scope.min_x, scope.vertices[v].position.x);
+		scope.min_y = Math.min(scope.min_y, scope.vertices[v].position.y);
+		scope.min_z = Math.min(scope.min_z, scope.vertices[v].position.z);
+	}
+
+  scope.center_x = (scope.max_x + scope.min_x)/2;
+  scope.center_y = (scope.max_y + scope.min_y)/2;
+  scope.center_z = (scope.max_z + scope.min_z)/2;
 }
 
 STLGeometry.prototype = new THREE.Geometry();
