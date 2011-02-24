@@ -710,22 +710,22 @@ Thingiview = function(containerId) {
 
 };
 
-var STLGeometry = function(STLArray) {
+var STLGeometry = function(stlArray) {
   // log("building geometry...");
 	THREE.Geometry.call(this);
 
 	var scope = this;
 
-  // var vertexes = STLArray[0];
-  // var normals  = STLArray[1];
-  // var faces    = STLArray[2];
+  // var vertexes = stlArray[0];
+  // var normals  = stlArray[1];
+  // var faces    = stlArray[2];
 
-  for (var i=0; i<STLArray[0].length; i++) {    
-    v(STLArray[0][i][0], STLArray[0][i][1], STLArray[0][i][2]);
+  for (var i=0; i<stlArray[0].length; i++) {    
+    v(stlArray[0][i][0], stlArray[0][i][1], stlArray[0][i][2]);
   }
 
-  for (var i=0; i<STLArray[2].length; i++) {
-    f3(STLArray[2][i][0], STLArray[2][i][1], STLArray[2][i][2]);
+  for (var i=0; i<stlArray[1].length; i++) {
+    f3(stlArray[1][i][0], stlArray[1][i][1], stlArray[1][i][2]);
   }
 
   function v(x, y, z) {
@@ -762,7 +762,7 @@ var STLGeometry = function(STLArray) {
 		scope.min_x = Math.min(scope.min_x, scope.vertices[v].position.x);
 		scope.min_y = Math.min(scope.min_y, scope.vertices[v].position.y);
 		scope.min_z = Math.min(scope.min_z, scope.vertices[v].position.z);
-	}
+}
 
   scope.center_x = (scope.max_x + scope.min_x)/2;
   scope.center_y = (scope.max_y + scope.min_y)/2;

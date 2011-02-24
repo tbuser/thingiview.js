@@ -126,13 +126,12 @@ Thingiloader = function(event) {
       input.readUInt16();
     }
 
-    return [vertices, [], faces];
+    return [vertices, faces];
   };
 
   // build stl's vertex and face arrays
   this.ParseSTLString = function(STLString) {
     var vertexes  = [];
-    var normals   = [];
     var faces     = [];
   
     var face_vertexes = [];
@@ -183,7 +182,7 @@ Thingiloader = function(event) {
       block_start = block_start + 12;
     }
 
-    return [vertexes, normals, faces];
+    return [vertexes, faces];
   };
 
   this.ParseOBJString = function(OBJString) {
