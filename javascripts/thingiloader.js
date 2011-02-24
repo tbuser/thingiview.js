@@ -224,22 +224,6 @@ Thingiloader = function(event) {
 
 };
 
-// indexOf only finds strings? seriously Javascript, seriously?!
-Array.prototype.myIndexOf = function(searchstring, indexstart) {
-  if (indexstart == undefined) {
-    indexstart = 0;
-  }
-
-	var result = -1;
-	for (i=indexstart; i<this.length; i++) {
-		if (this[i] == searchstring) {
-			result = i;
-			break;
-		}
-	}
-	return result;
-};
-
 if (typeof(window) === "undefined") {
     onmessage = Thingiloader;
     workerFacadeMessage = postMessage;
