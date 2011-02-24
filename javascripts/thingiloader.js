@@ -18,13 +18,32 @@ Thingiloader = function(event) {
   };
 
   this.loadSTL = function(url) {
+    var looksLikeBinary = function(reader) {
+      // STL files don't specify a way to distinguish ASCII from binary.
+      // The usual way is checking for "solid" at the start of the file --
+      // but Thingiverse has seen at least one binary STL file in the wild
+      // that breaks this.
+
+      // The approach here is different: binary STL files contain a triangle
+      // count early in the file.  If this correctly predicts the file's length,
+      // it is most probably a binary STL file.
+
+      reader.seek(80);  // skip the header
+      var count = reader.readUInt32();
+
+      var predictedSize = 80 /* header */ + 4 /* count */ + 50 * count;
+      return reader.getSize() == predictedSize;
+    };
+
+
     workerFacadeMessage({'status':'message', 'content':'Downloading ' + url});  
     var file = this.load_binary_resource(url);
     var reader = new BinaryReader(file);
-    if (reader.readString(5) == "solid") {
-      this.loadSTLString(file);
-    } else {
+
+    if (looksLikeBinary(reader)) {
       this.loadSTLBinary(reader);
+    } else {
+      this.loadSTLString(file);
     }
   };
 
