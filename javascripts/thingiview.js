@@ -643,14 +643,6 @@ Thingiview = function(containerId) {
   }
 
   this.displayAlert = function(msg) {
-    if (msg == "large object!") {
-      msg = "This object is very large and will take a long time to load and be very slow."
-      
-      if (!isWebGl) {
-        msg = msg + " For the best performance we recommend a <a href=\"http://www.khronos.org/webgl/wiki/Getting_a_WebGL_Implementation\">WebGL enabled browser</a> such as Minefield."
-      }
-    }
-    
     msg = msg + "<br/><br/><center><input type=\"button\" value=\"Ok\" onclick=\"document.getElementById('alertBox').style.display='none'\"></center>"
     
     alertBox.innerHTML = msg;
