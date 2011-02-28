@@ -134,6 +134,7 @@ Thingiloader = function(event) {
     // console.log(STLString);
 
     // strip out extraneous stuff
+    STLString = STLString.replace(/\r/, "\n");
     STLString = STLString.replace(/^solid[^\n]*/, "");
     STLString = STLString.replace(/\n/g, " ");
     STLString = STLString.replace(/facet normal /g,"");
