@@ -134,14 +134,14 @@ Thingiloader = function(event) {
     // console.log(STLString);
 
     // strip out extraneous stuff
-    STLString = STLString.replace(/^solid\s[^\n]*/, "");
+    STLString = STLString.replace(/^solid[^\n]*/, "");
     STLString = STLString.replace(/\n/g, " ");
     STLString = STLString.replace(/facet normal /g,"");
     STLString = STLString.replace(/outer loop/g,"");  
     STLString = STLString.replace(/vertex /g,"");
     STLString = STLString.replace(/endloop/g,"");
     STLString = STLString.replace(/endfacet/g,"");
-    STLString = STLString.replace(/endsolid\s(\w+)?/, "");
+    STLString = STLString.replace(/endsolid[^\n]*/, "");
     STLString = STLString.replace(/\s+/g, " ");
     STLString = STLString.replace(/^\s+/, "");
 
