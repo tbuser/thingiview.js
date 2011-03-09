@@ -8,23 +8,36 @@ Thingiloader = function(event) {
   	req.send(null);
   	if (req.status != 200) return '';
 
-    // workerFacadeMessage({'status':'alert', 'content':req.responseText.length});
-    
-    if (req.responseText.length > 1000000) {
-      workerFacadeMessage({'status':'alert', 'content':'large object!'});
-    }
-
   	return req.responseText;
   };
 
   this.loadSTL = function(url) {
+    var looksLikeBinary = function(reader) {
+      // STL files don't specify a way to distinguish ASCII from binary.
+      // The usual way is checking for "solid" at the start of the file --
+      // but Thingiverse has seen at least one binary STL file in the wild
+      // that breaks this.
+
+      // The approach here is different: binary STL files contain a triangle
+      // count early in the file.  If this correctly predicts the file's length,
+      // it is most probably a binary STL file.
+
+      reader.seek(80);  // skip the header
+      var count = reader.readUInt32();
+
+      var predictedSize = 80 /* header */ + 4 /* count */ + 50 * count;
+      return reader.getSize() == predictedSize;
+    };
+
+
     workerFacadeMessage({'status':'message', 'content':'Downloading ' + url});  
     var file = this.load_binary_resource(url);
     var reader = new BinaryReader(file);
-    if (reader.readString(5) == "solid") {
-      this.loadSTLString(file);
-    } else {
+
+    if (looksLikeBinary(reader)) {
       this.loadSTLBinary(reader);
+    } else {
+      this.loadSTLString(file);
     }
   };
 
@@ -107,13 +120,12 @@ Thingiloader = function(event) {
       input.readUInt16();
     }
 
-    return [vertices, [], faces];
+    return [vertices, faces];
   };
 
   // build stl's vertex and face arrays
   this.ParseSTLString = function(STLString) {
     var vertexes  = [];
-    var normals   = [];
     var faces     = [];
   
     var face_vertexes = [];
@@ -122,14 +134,15 @@ Thingiloader = function(event) {
     // console.log(STLString);
 
     // strip out extraneous stuff
-    STLString = STLString.replace(/^solid\s[^\n]*/, "");
+    STLString = STLString.replace(/\r/, "\n");
+    STLString = STLString.replace(/^solid[^\n]*/, "");
     STLString = STLString.replace(/\n/g, " ");
     STLString = STLString.replace(/facet normal /g,"");
     STLString = STLString.replace(/outer loop/g,"");  
     STLString = STLString.replace(/vertex /g,"");
     STLString = STLString.replace(/endloop/g,"");
     STLString = STLString.replace(/endfacet/g,"");
-    STLString = STLString.replace(/endsolid\s(\w+)?/, "");
+    STLString = STLString.replace(/endsolid[^\n]*/, "");
     STLString = STLString.replace(/\s+/g, " ");
     STLString = STLString.replace(/^\s+/, "");
 
@@ -164,7 +177,7 @@ Thingiloader = function(event) {
       block_start = block_start + 12;
     }
 
-    return [vertexes, normals, faces];
+    return [vertexes, faces];
   };
 
   this.ParseOBJString = function(OBJString) {
