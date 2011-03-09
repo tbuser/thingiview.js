@@ -38,13 +38,11 @@ function parse_stl_string($str) {
 
   $faces = make_faces($vertexes, $face_vertexes);
   
-  // TODO: normals aren't really needed... should probably skip parsing them too
-  return array($vertexes, array(), $faces);
+  return array($vertexes, $faces);
 }
 
 function parse_stl_binary($fp) {
   $vertexes = array();
-  $normals  = array();
   $faces    = array();
 
   $face_vertexes = array();
@@ -89,14 +87,13 @@ function parse_stl_binary($fp) {
   
   $faces = make_faces($vertexes, $face_vertexes);
   
-  return array($vertexes, array(), $faces);
+  return array($vertexes, $faces);
 }
 
 function parse_obj_string($str) {
   $lines    = split("\n", $str);
 
   $vertexes = array();
-  $normals  = array();
   $faces    = array();
 
   foreach($lines as $line) {
@@ -118,7 +115,7 @@ function parse_obj_string($str) {
     }
   }
   
-  return array($vertexes, array(), $faces);
+  return array($vertexes, $faces);
 }
 
 function make_faces($vertexes, $face_vertexes) {
