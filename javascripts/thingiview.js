@@ -697,6 +697,7 @@ Thingiview = function(containerId) {
 
       if (objectMaterial != 'wireframe') {
         object.overdraw = true;
+        object.doubleSided = true;
       }
       
       object.updateMatrix();
