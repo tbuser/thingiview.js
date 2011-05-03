@@ -29,7 +29,6 @@ Thingiloader = function(event) {
       return reader.getSize() == predictedSize;
     };
 
-
     workerFacadeMessage({'status':'message', 'content':'Downloading ' + url});  
     var file = this.load_binary_resource(url);
     var reader = new BinaryReader(file);
@@ -51,7 +50,19 @@ Thingiloader = function(event) {
     workerFacadeMessage({'status':'message', 'content':'Downloading ' + url});
     var file = this.load_binary_resource(url);
     this.loadJSONString(file);
-  }
+  };
+  
+  this.loadPLY = function(url) {
+    workerFacadeMessage({'status':'message', 'content':'Downloading ' + url});  
+  
+    var file = this.load_binary_resource(url);
+    
+    if (file.match(/format ascii/i)) {
+      this.loadPLYString(file);
+    } else {
+      this.loadPLYBinary(file);
+    }
+  };
 
   this.loadSTLString = function(STLString) {
     workerFacadeMessage({'status':'message', 'content':'Parsing STL String...'});  
@@ -66,12 +77,75 @@ Thingiloader = function(event) {
   this.loadOBJString = function(OBJString) {
     workerFacadeMessage({'status':'message', 'content':'Parsing OBJ String...'});
     workerFacadeMessage({'status':'complete', 'content':this.ParseOBJString(OBJString)});
-  }
+  };
 
   this.loadJSONString = function(JSONString) {
     workerFacadeMessage({'status':'message', 'content':'Parsing JSON String...'});
     workerFacadeMessage({'status':'complete', 'content':eval(JSONString)});
-  }
+  };
+  
+  this.loadPLYString = function(PLYString) {
+    workerFacadeMessage({'status':'message', 'content':'Parsing PLY String...'});  
+    workerFacadeMessage({'status':'complete_points', 'content':this.ParsePLYString(PLYString)});
+  };
+
+  this.loadPLYBinary = function(PLYBinary) {
+    workerFacadeMessage({'status':'message', 'content':'Parsing PLY Binary...'});  
+    workerFacadeMessage({'status':'complete_points', 'content':this.ParsePLYBinary(PLYBinary)});
+  };
+
+  this.ParsePLYString = function(input) {
+    var properties = [];
+    var vertices = [];
+    var colors = [];
+
+    var vertex_count = 0;
+    
+    var header = /ply\n([\s\S]+)\nend_header/ig.exec(input)[1];
+    var data = /end_header\n([\s\S]+)$/ig.exec(input)[1];
+    
+    // workerFacadeMessage({'status':'message', 'content':'header:\n' + header});  
+    // workerFacadeMessage({'status':'message', 'content':'data:\n' + data});  
+
+    header_parts = header.split("\n");
+    
+    for (i in header_parts) {
+      if (/element vertex/i.test(header_parts[i])) {
+        vertex_count = /element vertex (\d+)/i.exec(header_parts[i])[1];
+      } else if (/property/i.test(header_parts[i])) {
+        properties.push(/property (.*) (.*)/i.exec(header_parts[i])[2]);
+      }
+    }
+    
+    // workerFacadeMessage({'status':'message', 'content':'properties: ' + properties});
+
+    data_parts = data.split("\n");
+    
+    for (i in data_parts) {
+      data_line = data_parts[i];
+      data_line_parts = data_line.split(" ");
+      
+      vertices.push([
+        parseFloat(data_line_parts[properties.indexOf("x")]), 
+        parseFloat(data_line_parts[properties.indexOf("y")]), 
+        parseFloat(data_line_parts[properties.indexOf("z")]) 
+      ]);
+      
+      colors.push([ 
+        parseInt(data_line_parts[properties.indexOf("red")]), 
+        parseInt(data_line_parts[properties.indexOf("green")]), 
+        parseInt(data_line_parts[properties.indexOf("blue")]) 
+      ]);
+    }
+
+    // workerFacadeMessage({'status':'message', 'content':'vertices: ' + vertices});
+
+    return [vertices, colors];
+  };
+
+  this.ParsePLYBinary = function(input) {
+    return false;
+  };
 
   this.ParseSTLBinary = function(input) {
     // Skip the header.
@@ -221,6 +295,15 @@ Thingiloader = function(event) {
     break;
     case "loadJSON":
     this.loadJSON(event.data.param);
+    break;
+    case "loadPLY":
+    this.loadPLY(event.data.param);
+    break;
+    case "loadPLYString":
+    this.loadPLYString(event.data.param);
+    break;
+    case "loadPLYBinary":
+    this.loadPLYBinary(event.data.param);
     break;
   }  
 

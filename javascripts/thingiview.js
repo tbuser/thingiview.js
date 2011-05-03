@@ -552,6 +552,18 @@ Thingiview = function(containerId) {
     scope.newWorker('loadJSON', url);
   }
 
+  this.loadPLY = function(url) {
+    scope.newWorker('loadPLY', url);
+  }
+  
+  this.loadPLYString = function(PLYString) {
+    scope.newWorker('loadPLYString', PLYString);
+  }
+
+  this.loadPLYBinary = function(PLYBinary) {
+    scope.newWorker('loadPLYBinary', PLYBinary);
+  }
+
   this.centerCamera = function() {
     if (geometry) {
       // Using method from http://msdn.microsoft.com/en-us/library/bb197900(v=xnagamestudio.10).aspx
@@ -618,6 +630,37 @@ Thingiview = function(containerId) {
         scope.setRotation(true);
         log("finished loading " + geometry.faces.length + " faces.");
         scope.centerCamera();
+      } else if (event.data.status == "complete_points") {
+        progressBar.innerHTML = 'Initializing points...';
+
+        geometry = new THREE.Geometry();
+
+        var material = new THREE.ParticleBasicMaterial( { color: 0xff0000, opacity: 1 } );
+
+        // material = new THREE.ParticleBasicMaterial( { size: 35, sizeAttenuation: false} );
+        // material.color.setHSV( 1.0, 0.2, 0.8 );
+        
+        for (i in event.data.content[0]) {
+        // for (var i=0; i<10; i++) {
+          vector = new THREE.Vector3( event.data.content[0][i][0], event.data.content[0][i][1], event.data.content[0][i][2] );
+          geometry.vertices.push( new THREE.Vertex( vector ) );
+        }
+
+        particles = new THREE.ParticleSystem( geometry, material );
+        particles.sortParticles = true;
+        particles.updateMatrix();
+        scene.addObject( particles );
+                                
+        camera.updateMatrix();
+        renderer.render(scene, camera);
+        
+        progressBar.innerHTML = '';
+        progressBar.style.display = 'none';
+
+        scope.setRotation(false);
+        scope.setRotation(true);
+        log("finished loading " + event.data.content[0].length + " points.");
+        // scope.centerCamera();
       } else if (event.data.status == "progress") {
         progressBar.style.display = 'block';
         progressBar.style.width = event.data.content;
@@ -625,7 +668,7 @@ Thingiview = function(containerId) {
       } else if (event.data.status == "message") {
         progressBar.style.display = 'block';
         progressBar.innerHTML = event.data.content;
-        // log(event.data.content);
+        log(event.data.content);
       } else if (event.data.status == "alert") {
         scope.displayAlert(event.data.content);
       } else {

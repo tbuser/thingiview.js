@@ -35,7 +35,8 @@
       if (getUrlVars()["stl"]) {
         thingiview.loadSTL(getUrlVars()["stl"]);
       } else {
-        thingiview.loadSTL("../examples/objects/cube.stl");
+        // thingiview.loadSTL("../examples/objects/cube.stl");
+        thingiview.loadPLY("../examples/objects/gnome_ascii.ply");
       }
     }
     
@@ -90,6 +91,16 @@
     <li><a href="#" onclick="thingiview.loadOBJ('../examples/objects/teddy.obj')">render</a> | <a href="objects/teddy.obj">download</a> Teddy</li>
     <li><a href="#" onclick="thingiview.loadOBJ('../examples/objects/teapot.obj')">render</a> | <a href="objects/teapot.obj">download</a> Tea Pot (buggy)</li>
     <li><a href="#" onclick="thingiview.loadOBJ('../examples/objects/walt_small.obj')">render</a> | <a href="objects/walt_small.obj">download</a> Walt Low Poly (big, but manageable)</li>
+  </ul>
+  
+  <h3>ASCII PLY Files</h3>
+  <ul>
+    <li><a href="#" onclick="thingiview.loadPLY('../examples/objects/gnome_ascii.ply')">render</a> | <a href="objects/gnome_ascii.ply">download</a> Gnome</li>
+  </ul>
+
+  <h3>BINARY PLY Files</h3>
+  <ul>
+    <li><a href="#" onclick="thingiview.loadPLY('../examples/objects/gnome_binary.ply')">render</a> | <a href="objects/gnome_binary.ply">download</a> Gnome</li>
   </ul>
 </div>
 
