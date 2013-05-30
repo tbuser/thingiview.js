@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<title>thingiview</title>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+		<style>
+			body {
+				background:#ffffff;
+				padding:0;
+				margin:0;
+				font-weight: bold;
+				overflow:hidden;
+			}
+
+			#info {
+				position: absolute;
+				top: 0px; width: 100%;
+				color: #ffffff;
+				padding: 5px;
+				font-family:Monospace;
+				font-size:13px;
+				text-align:center;
+				z-index:1000;
+			}
+
+			a {
+				color: #ffffff;
+			}
+
+			#oldie a { color:#da0 }
+		</style>
+	</head>
+
+	<body>
+
+		<script src="js/three.min.js"></script>
+		<script src="js/Thingiview.js"></script>
+    <script src="js/NormalControls.js"></script>
+		<script src="js/Detector.js"></script>
+
+		<script>
+
+			if ( ! Detector.webgl ) Detector.addGetWebGLMessage();
+
+      // parse opts
+      var argv = {};
+      var parts = window.location.href.replace(/[?&]+([^=&]+)=([^&]*)/gi, function(m,key,value) {
+          argv[key] = value;
+      });
+      // set this to a debug model
+      if ( argv['file']==undefined )
+        argv['file'] = '/example.js';
+
+      var thingiview = new Thingiview();
+      if ( parseInt(argv['width']) && parseInt(argv['height']) )
+        thingiview.resize( parseInt(argv['width']), parseInt(argv['height']) );
+
+      var self = thingiview;
+      loader = new THREE.JSONLoader(true);
+      loader.statusDomElement.style.left = "0px";
+      loader.statusDomElement.style.width = "auto";
+      document.body.appendChild( loader.statusDomElement );
+      loadCallback = function ( geometry, materials ) {
+        self.addModel( geometry );
+        document.body.removeChild( loader.statusDomElement );
+      };
+      loader.load( argv['file'], loadCallback );
+
+      var animate = function() {
+        requestAnimationFrame( animate );
+        thingiview.render();
+      }
+      animate();
+
+		</script>
+
+	</body>
+</html>
+
+
