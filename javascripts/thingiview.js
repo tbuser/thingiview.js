@@ -393,11 +393,11 @@ Thingiview = function(containerId) {
 
   this.setRotation = function(rotate) {
     rotation = rotate;
-    
+    clearInterval(rotateTimer);
+
     if (rotate) {
       rotateTimer = setInterval(rotateLoop, 1000/60);
     } else {
-      clearInterval(rotateTimer);
       rotateTimer = null;
     }
 
