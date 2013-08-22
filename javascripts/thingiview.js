@@ -699,7 +699,7 @@ Thingiview = function(containerId) {
 
   function loadPlaneGeometry() {
     // TODO: switch to lines instead of the Plane object so we can get rid of the horizontal lines in canvas renderer...
-    plane = new THREE.Mesh(new Plane(100, 100, 10, 10), new THREE.MeshBasicMaterial({color:0xafafaf,wireframe:true}));
+    plane = new THREE.Mesh(new THREE.PlaneGeometry(100, 100, 10, 10), new THREE.MeshBasicMaterial({color:0xafafaf,wireframe:true}));
     scene.add(plane);
   }
 
