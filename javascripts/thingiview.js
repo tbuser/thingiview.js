@@ -65,26 +65,27 @@ Thingiview = function(containerId) {
     container.style.position = 'relative';
     container.innerHTML      = '';
 
-  	camera = new THREE.Camera(45, width/ height, 1, 100000);
+  	camera = new THREE.PerspectiveCamera(45, width/ height, 1, 100000);
   	camera.updateMatrix();
+    camera.target = new THREE.Vector3(0, 0, 0);
 
   	scene  = new THREE.Scene();
 
     ambientLight = new THREE.AmbientLight(0x202020);
-    scene.addLight(ambientLight);
+    scene.add(ambientLight);
     
     directionalLight = new THREE.DirectionalLight(0xffffff, 0.75);
     directionalLight.position.x = 1;
     directionalLight.position.y = 1;
     directionalLight.position.z = 2;
     directionalLight.position.normalize();
-    scene.addLight(directionalLight);
+    scene.add(directionalLight);
     
     pointLight = new THREE.PointLight(0xffffff, 0.3);
     pointLight.position.x = 0;
     pointLight.position.y = -25;
     pointLight.position.z = 10;
-    scene.addLight(pointLight);
+    scene.add(pointLight);
 
     progressBar = document.createElement('div');
     progressBar.style.position = 'absolute';
@@ -345,9 +346,10 @@ Thingiview = function(containerId) {
 
       // log(object.rotation.x);
 
+      camera.lookAt(camera.target);
       camera.updateMatrix();
       object.updateMatrix();
-      
+
       if (showPlane) {
         plane.updateMatrix();
       }
@@ -437,14 +439,14 @@ Thingiview = function(containerId) {
     if (dir == 'top') {
       // camera.position.y = 0;
       // camera.position.z = 100;
-      // camera.target.position.z = 0;
+      // camera.target.z = 0;
       if (showPlane) {
         plane.flipSided = false;
       }
     } else if (dir == 'side') {
       // camera.position.y = -70;
       // camera.position.z = 70;
-      // camera.target.position.z = 0;
+      // camera.target.z = 0;
       targetYRotation = -4.5;
       if (showPlane) {
         plane.flipSided = false;
@@ -452,14 +454,14 @@ Thingiview = function(containerId) {
     } else if (dir == 'bottom') {
       // camera.position.y = 0;
       // camera.position.z = -100;
-      // camera.target.position.z = 0;
+      // camera.target.z = 0;
       if (showPlane) {
         plane.flipSided = true;
       }
     } else {
       // camera.position.y = -70;
       // camera.position.z = 70;
-      // camera.target.position.z = 0;
+      // camera.target.z = 0;
       if (showPlane) {
         plane.flipSided = false;
       }
@@ -570,9 +572,9 @@ Thingiview = function(containerId) {
       // log("bounding sphere radius = " + geometry.boundingSphere.radius);
 
       // look at the center of the object
-      camera.target.position.x = geometry.center_x;
-      camera.target.position.y = geometry.center_y;
-      camera.target.position.z = geometry.center_z;
+      camera.target.x = geometry.center_x;
+      camera.target.y = geometry.center_y;
+      camera.target.z = geometry.center_z;
 
       // set camera position to center of sphere
       camera.position.x = geometry.center_x;
@@ -598,7 +600,7 @@ Thingiview = function(containerId) {
       // set to any valid position so it doesn't fail before geometry is available
       camera.position.y = -70;
       camera.position.z = 70;
-      camera.target.position.z = 0;
+      camera.target.z = 0;
     }
   }
 
@@ -643,14 +645,15 @@ Thingiview = function(containerId) {
         for (i in event.data.content[0]) {
         // for (var i=0; i<10; i++) {
           vector = new THREE.Vector3( event.data.content[0][i][0], event.data.content[0][i][1], event.data.content[0][i][2] );
-          geometry.vertices.push( new THREE.Vertex( vector ) );
+          geometry.vertices.push(vector);
         }
 
         particles = new THREE.ParticleSystem( geometry, material );
         particles.sortParticles = true;
         particles.updateMatrix();
-        scene.addObject( particles );
+        scene.add( particles );
                                 
+        camera.lookAt(camera.target);
         camera.updateMatrix();
         renderer.render(scene, camera);
         
@@ -697,7 +700,7 @@ Thingiview = function(containerId) {
   function loadPlaneGeometry() {
     // TODO: switch to lines instead of the Plane object so we can get rid of the horizontal lines in canvas renderer...
     plane = new THREE.Mesh(new Plane(100, 100, 10, 10), new THREE.MeshBasicMaterial({color:0xafafaf,wireframe:true}));
-    scene.addObject(plane);
+    scene.add(plane);
   }
 
   function loadObjectGeometry() {
@@ -728,7 +731,7 @@ Thingiview = function(containerId) {
       }
 
       object = new THREE.Mesh(geometry, material);
-  		scene.addObject(object);
+  		scene.add(object);
 
       if (objectMaterial != 'wireframe') {
         object.overdraw = true;
@@ -766,7 +769,7 @@ var STLGeometry = function(stlArray) {
 
   function v(x, y, z) {
     // log("adding vertex: " + x + "," + y + "," + z);
-    scope.vertices.push( new THREE.Vertex( new THREE.Vector3( x, y, z ) ) );
+    scope.vertices.push( new THREE.Vector3( x, y, z ) );
   }
 
   function f3(a, b, c) {
@@ -779,7 +782,6 @@ var STLGeometry = function(stlArray) {
   // log("computing normals...");
   // this.computeNormals();
 	this.computeFaceNormals();
-	this.sortFacesByMaterial();
   // log("finished building geometry");
 
   scope.min_x = 0;
@@ -791,13 +793,13 @@ var STLGeometry = function(stlArray) {
   scope.max_z = 0;
   
   for (var v = 0, vl = scope.vertices.length; v < vl; v ++) {
-		scope.max_x = Math.max(scope.max_x, scope.vertices[v].position.x);
-		scope.max_y = Math.max(scope.max_y, scope.vertices[v].position.y);
-		scope.max_z = Math.max(scope.max_z, scope.vertices[v].position.z);
+		scope.max_x = Math.max(scope.max_x, scope.vertices[v].x);
+		scope.max_y = Math.max(scope.max_y, scope.vertices[v].y);
+		scope.max_z = Math.max(scope.max_z, scope.vertices[v].z);
 		                                    
-		scope.min_x = Math.min(scope.min_x, scope.vertices[v].position.x);
-		scope.min_y = Math.min(scope.min_y, scope.vertices[v].position.y);
-		scope.min_z = Math.min(scope.min_z, scope.vertices[v].position.z);
+		scope.min_x = Math.min(scope.min_x, scope.vertices[v].x);
+		scope.min_y = Math.min(scope.min_y, scope.vertices[v].y);
+		scope.min_z = Math.min(scope.min_z, scope.vertices[v].z);
 }
 
   scope.center_x = (scope.max_x + scope.min_x)/2;
