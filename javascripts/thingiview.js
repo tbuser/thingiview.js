@@ -875,11 +875,24 @@ var STLGeometry = function(stlArray) {
 		scope.min_x = Math.min(scope.min_x, scope.vertices[v].x);
 		scope.min_y = Math.min(scope.min_y, scope.vertices[v].y);
 		scope.min_z = Math.min(scope.min_z, scope.vertices[v].z);
-}
+  }
 
   scope.center_x = (scope.max_x + scope.min_x)/2;
   scope.center_y = (scope.max_y + scope.min_y)/2;
   scope.center_z = (scope.max_z + scope.min_z)/2;
+
+  for (var v = 0, vl = scope.vertices.length; v < vl; v ++) {
+    scope.vertices[v].x -= scope.center_x;
+    scope.vertices[v].y -= scope.center_y;
+  }
+  scope.max_x -= scope.center_x;
+  scope.max_y -= scope.center_y;
+                                      
+  scope.min_x -= scope.center_x;
+  scope.min_y -= scope.center_y;
+
+  scope.center_x = 0;
+  scope.center_y = 0;
 }
 
 STLGeometry.prototype = new THREE.Geometry();
