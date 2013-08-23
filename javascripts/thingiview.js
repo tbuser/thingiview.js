@@ -454,6 +454,8 @@ Thingiview.prototype.getRotation = function() {
 Thingiview.prototype.setRotation = function(rotate) {
     rotation = rotate;
     
+    clearInterval(this.rotateTimer);
+
     if (rotate) {
       this.rotateTimer = setInterval((function(self) {
                                         return function() {
@@ -461,7 +463,6 @@ Thingiview.prototype.setRotation = function(rotate) {
                                         }
                                        })(this), 1000/60);
     } else {
-      clearInterval(this.rotateTimer);
       this.rotateTimer = null;
     }
 
