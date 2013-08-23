@@ -378,7 +378,6 @@ Thingiview.prototype.onRendererTouchMove = function(event) {
 
 Thingiview.prototype.sceneLoop = function() {
     if (this.object) {
-      log("Prout");
       // if (view == 'bottom') {
       //   if (this.showPlane) {
       //     this.plane.rotation.z = this.object.rotation.z -= (targetRotation + this.object.rotation.z) * 0.05;
