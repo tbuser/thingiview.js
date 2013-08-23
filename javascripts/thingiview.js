@@ -72,8 +72,9 @@ Thingiview.prototype.initScene = function() {
     this.container.innerHTML      = '';
 
   	this.camera = new THREE.PerspectiveCamera(45, this.width/ this.height, 1, 100000);
+  	this.camera.up = new THREE.Vector3(0, 0, 1);
+  	this.camera.target = new THREE.Vector3(0, 0, 0);
   	this.camera.updateMatrix();
-    this.camera.target = new THREE.Vector3(0, 0, 0);
 
   	this.scene  = new THREE.Scene();
 
