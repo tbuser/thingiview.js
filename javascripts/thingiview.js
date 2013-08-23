@@ -1,102 +1,110 @@
-Thingiview = function(containerId) {
-  scope = this;
-  
+var Thingiview = function(containerId, gridsize, gridunit) {
+  this.scope = this;
   this.containerId  = containerId;
-  var container     = document.getElementById(containerId);
-  
-  // var stats    = null;
-  var camera   = null;
-  var scene    = null;
-  var renderer = null;
-  var object   = null;
-  var plane    = null;
-  
-  var ambientLight     = null;
-  var directionalLight = null;
-  var pointLight       = null;
-  
-  var targetXRotation             = 0;
-  var targetXRotationOnMouseDown  = 0;
-  var mouseX                      = 0;
-  var mouseXOnMouseDown           = 0;
+  this.gridsize = gridsize;
+  this.gridunit = gridunit;
+  this.init();
+}
 
-  var targetYRotation             = 0;
-  var targetYRotationOnMouseDown  = 0;
-  var mouseY                      = 0;
-  var mouseYOnMouseDown           = 0;
-
-  var mouseDown                  = false;
-  var mouseOver                  = false;
+Thingiview.prototype.init = function() {
+  this.container     = document.getElementById(this.containerId);
   
-  var windowHalfX = window.innerWidth / 2;
-  var windowHalfY = window.innerHeight / 2
-
-  var view         = null;
-  var infoMessage  = null;
-  var progressBar  = null;
-  var alertBox     = null;
+  // this.stats    = null;
+  this.camera   = null;
+  this.scene    = null;
+  this.renderer = null;
+  this.object   = null;
+  this.plane    = null;
   
-  var timer        = null;
+  this.ambientLight     = null;
+  this.directionalLight = null;
+  this.pointLight       = null;
+  
+  this.targetXRotation             = 0;
+  this.targetXRotationOnMouseDown  = 0;
+  this.mouseX                      = 0;
+  this.mouseXOnMouseDown           = 0;
 
-  var rotateTimer    = null;
-  var rotateListener = null;
-  var wasRotating    = null;
+  this.targetYRotation             = 0;
+  this.targetYRotationOnMouseDown  = 0;
+  this.mouseY                      = 0;
+  this.mouseYOnMouseDown           = 0;
 
-  var cameraView = 'diagonal';
-  var cameraZoom = 0;
-  var rotate = false;
-  var backgroundColor = '#606060';
-  var objectMaterial = 'solid';
-  var objectColor = 0xffffff;
-  var showPlane = true;
-  var isWebGl = false;
+  this.mouseDown                  = false;
+  this.mouseOver                  = false;
+  
+  this.windowHalfX = window.innerWidth / 2;
+  this.windowHalfY = window.innerHeight / 2
+
+  this.view         = null;
+  this.infoMessage  = null;
+  this.progressBar  = null;
+  this.alertBox     = null;
+  
+  this.timer        = null;
+
+  this.rotateTimer    = null;
+  this.rotateListener = null;
+  this.wasRotating    = null;
+
+  this.cameraView = 'diagonal';
+  this.cameraZoom = 0;
+  this.rotate = false;
+  this.backgroundColor = '#606060';
+  this.objectMaterial = 'solid';
+  this.objectColor = 0xffffff;
+  this.showPlane = true;
+  this.isWebGl = false;
 
   if (document.defaultView && document.defaultView.getComputedStyle) {
-    var width  = parseFloat(document.defaultView.getComputedStyle(container,null).getPropertyValue('width'));
-    var height = parseFloat(document.defaultView.getComputedStyle(container,null).getPropertyValue('height'));  
+    this.width  = parseFloat(document.defaultView.getComputedStyle(this.container,null).getPropertyValue('width'));
+    this.height = parseFloat(document.defaultView.getComputedStyle(this.container,null).getPropertyValue('height'));  
   } else {
-    var width  = parseFloat(container.currentStyle.width);
-    var height = parseFloat(container.currentStyle.height);
+    this.width  = parseFloat(this.container.currentStyle.width);
+    this.height = parseFloat(this.container.currentStyle.height);
   }
 
-  var geometry;
+  this.geometry;
+}
 
-  this.initScene = function() {
-    container.style.position = 'relative';
-    container.innerHTML      = '';
+Thingiview.prototype.initScene = function() {
+    this.container.style.position = 'relative';
+    this.container.innerHTML      = '';
 
-  	camera = new THREE.Camera(45, width/ height, 1, 100000);
-  	camera.updateMatrix();
+  	this.camera = new THREE.PerspectiveCamera(45, this.width/ this.height, 1, 100000);
+  	this.camera.up = new THREE.Vector3(0, 0, 1);
+  	this.camera.target = new THREE.Vector3(0, 0, 0);
+  	this.camera.updateMatrix();
 
-  	scene  = new THREE.Scene();
+  	this.scene  = new THREE.Scene();
 
-    ambientLight = new THREE.AmbientLight(0x202020);
-    scene.addLight(ambientLight);
+    this.ambientLight = new THREE.AmbientLight(0x202020);
+    this.scene.add(this.ambientLight);
     
-    directionalLight = new THREE.DirectionalLight(0xffffff, 0.75);
-    directionalLight.position.x = 1;
-    directionalLight.position.y = 1;
-    directionalLight.position.z = 2;
-    directionalLight.position.normalize();
-    scene.addLight(directionalLight);
+    this.directionalLight = new THREE.DirectionalLight(0xffffff, 0.75);
+    this.directionalLight.position.x = 1;
+    this.directionalLight.position.y = 1;
+    this.directionalLight.position.z = 2;
+    this.directionalLight.position.normalize();
+    this.scene.add(this.directionalLight);
     
-    pointLight = new THREE.PointLight(0xffffff, 0.3);
-    pointLight.position.x = 0;
-    pointLight.position.y = -25;
-    pointLight.position.z = 10;
-    scene.addLight(pointLight);
+    this.pointLight = new THREE.PointLight(0xffffff, 0.3);
+    this.pointLight.position.x = 0;
+    this.pointLight.position.y = -25;
+    this.pointLight.position.z = 10;
+    this.scene.add(this.pointLight);
 
-    progressBar = document.createElement('div');
-    progressBar.style.position = 'absolute';
-    progressBar.style.top = '0px';
-    progressBar.style.left = '0px';
-    progressBar.style.backgroundColor = 'red';
-    progressBar.style.padding = '5px';
-    progressBar.style.display = 'none';
-    progressBar.style.overflow = 'visible';
-    progressBar.style.whiteSpace = 'nowrap';
-    progressBar.style.zIndex = 100;
-    container.appendChild(progressBar);
+    this.progressBar = document.createElement('div');
+    this.progressBar.style.position = 'absolute';
+    this.progressBar.style.top = '0px';
+    this.progressBar.style.left = '0px';
+    this.progressBar.style.backgroundColor = 'red';
+    this.progressBar.style.padding = '5px';
+    this.progressBar.style.display = 'none';
+    this.progressBar.style.overflow = 'visible';
+    this.progressBar.style.whiteSpace = 'nowrap';
+    this.progressBar.style.zIndex = 100;
+    this.container.appendChild(this.progressBar);
     
     alertBox = document.createElement('div');
     alertBox.id = 'alertBox';
@@ -110,80 +118,124 @@ Thingiview = function(containerId) {
     // alertBox.style.overflowY = 'scroll';
     alertBox.style.display = 'none';
     alertBox.style.zIndex = 100;
-    container.appendChild(alertBox);
+    this.container.appendChild(alertBox);
     
     // load a blank object
     // this.loadSTLString('');
 
-    if (showPlane) {
-      loadPlaneGeometry();
+    if (this.showPlane) {
+      this.loadPlaneGeometry();
     }
     
-    this.setCameraView(cameraView);
-    this.setObjectMaterial(objectMaterial);
+    this.setCameraView(this.cameraView);
+    this.setObjectMaterial(this.objectMaterial);
 
     testCanvas = document.createElement('canvas');
     try {
       if (testCanvas.getContext('experimental-webgl')) {
-        // showPlane = false;
+        // this.showPlane = false;
         isWebGl = true;
-        renderer = new THREE.WebGLRenderer();
-        // renderer = new THREE.CanvasRenderer();
+        this.renderer = new THREE.WebGLRenderer();
+        // this.renderer = new THREE.CanvasRenderer();
       } else {
-        renderer = new THREE.CanvasRenderer();
+        this.renderer = new THREE.CanvasRenderer();
       }
     } catch(e) {
-      renderer = new THREE.CanvasRenderer();
+      this.renderer = new THREE.CanvasRenderer();
       // log("failed webgl detection");
     }
 
-    // renderer.setSize(container.innerWidth, container.innerHeight);
+    // this.renderer.setSize(this.container.innerWidth, this.container.innerHeight);
 
-  	renderer.setSize(width, height);
-    renderer.domElement.style.backgroundColor = backgroundColor;
-  	container.appendChild(renderer.domElement);
+  	this.renderer.setSize(this.width, this.height);
+    this.renderer.domElement.style.backgroundColor = backgroundColor;
+  	this.container.appendChild(this.renderer.domElement);
 
     // stats = new Stats();
     // stats.domElement.style.position  = 'absolute';
     // stats.domElement.style.top       = '0px';
-    // container.appendChild(stats.domElement);
+    // this.container.appendChild(stats.domElement);
 
     // TODO: figure out how to get the render window to resize when window resizes
     // window.addEventListener('resize', onContainerResize(), false);
-    // container.addEventListener('resize', onContainerResize(), false);
+    // this.container.addEventListener('resize', onContainerResize(), false);
 
-    // renderer.domElement.addEventListener('mousemove',      onRendererMouseMove,     false);    
-  	window.addEventListener('mousemove',      onRendererMouseMove,     false);    
-    renderer.domElement.addEventListener('mouseover',      onRendererMouseOver,     false);
-    renderer.domElement.addEventListener('mouseout',       onRendererMouseOut,      false);
-  	renderer.domElement.addEventListener('mousedown',      onRendererMouseDown,     false);
-    // renderer.domElement.addEventListener('mouseup',        onRendererMouseUp,       false);
-    window.addEventListener('mouseup',        onRendererMouseUp,       false);
+    // this.renderer.domElement.addEventListener('mousemove',      onRendererMouseMove,     false);    
+  	window.addEventListener('mousemove', (function(self) {
+                                  return function(event) {
+                                    self.onRendererMouseMove(event);
+                                  }
+                                 })(this),     false);    
+    this.renderer.domElement.addEventListener('mouseover', (function(self) {
+                                  return function(event) {
+                                    self.onRendererMouseOver(event);
+                                  }
+                                 })(this),     false);
+    this.renderer.domElement.addEventListener('mouseout', (function(self) {
+                                  return function(event) {
+                                    self.onRendererMouseOut(event);
+                                  }
+                                 })(this),      false);
+  	this.renderer.domElement.addEventListener('mousedown', (function(self) {
+                                  return function(event) {
+                                    self.onRendererMouseDown(event);
+                                  }
+                                 })(this),     false);
+    // this.renderer.domElement.addEventListener('mouseup',        this.onRendererMouseUp,       false);
+    window.addEventListener('mouseup', (function(self) {
+                                  return function(event) {
+                                    self.onRendererMouseUp(event);
+                                  }
+                                 })(this),       false);
 
-  	renderer.domElement.addEventListener('touchstart',     onRendererTouchStart,    false);
-  	renderer.domElement.addEventListener('touchend',       onRendererTouchEnd,      false);
-  	renderer.domElement.addEventListener('touchmove',      onRendererTouchMove,     false);
+  	this.renderer.domElement.addEventListener('touchstart', (function(self) {
+                                  return function(event) {
+                                    self.onRendererTouchStart(event);
+                                  }
+                                 })(this),    false);
+  	this.renderer.domElement.addEventListener('touchend', (function(self) {
+                                  return function(event) {
+                                    self.onRendererTouchEnd(event);
+                                  }
+                                 })(this),      false);
+  	this.renderer.domElement.addEventListener('touchmove', (function(self) {
+                                  return function(event) {
+                                    self.onRendererTouchMove(event);
+                                  }
+                                 })(this),     false);
 
-    renderer.domElement.addEventListener('DOMMouseScroll', onRendererScroll,        false);
-  	renderer.domElement.addEventListener('mousewheel',     onRendererScroll,        false);
-  	renderer.domElement.addEventListener('gesturechange',  onRendererGestureChange, false);
+    this.renderer.domElement.addEventListener('DOMMouseScroll', (function(self) {
+                                  return function(event) {
+                                    self.onRendererScroll(event);
+                                  }
+                                 })(this),        false);
+  	this.renderer.domElement.addEventListener('mousewheel', (function(self) {
+                                  return function(event) {
+                                    self.onRendererScroll(event);
+                                  }
+                                 })(this),        false);
+  	this.renderer.domElement.addEventListener('gesturechange', (function(self) {
+                                  return function(event) {
+                                    self.onRendererGestureChange(event);
+                                  }
+                                 })(this), false);
   }
 
   // FIXME
   // onContainerResize = function(event) {
-  //   width  = parseFloat(document.defaultView.getComputedStyle(container,null).getPropertyValue('width'));
-  //   height = parseFloat(document.defaultView.getComputedStyle(container,null).getPropertyValue('height'));
+  //   width  = parseFloat(document.defaultView.getComputedStyle(this.container,null).getPropertyValue('width'));
+  //   height = parseFloat(document.defaultView.getComputedStyle(this.container,null).getPropertyValue('height'));
   // 
   //   // log("resized width: " + width + ", height: " + height);
   // 
-  //   if (renderer) {
-  //     renderer.setSize(width, height);
+  //   if (this.renderer) {
+  //     this.renderer.setSize(width, height);
   //     camera.projectionMatrix = THREE.Matrix4.makePerspective(70, width / height, 1, 10000);
-  //     sceneLoop();
+  //     this.sceneLoop();
   //   }    
   // };
   
-  onRendererScroll = function(event) {
+Thingiview.prototype.onRendererScroll = function(event) {
     event.preventDefault();
 
     var rolled = 0;
@@ -198,442 +250,457 @@ Thingiview = function(containerId) {
 
     if (rolled > 0) {
       // up
-      scope.setCameraZoom(+10);
+      this.scope.setCameraZoom(+10);
     } else {
       // down
-      scope.setCameraZoom(-10);
+      this.scope.setCameraZoom(-10);
     }
   }
 
-  onRendererGestureChange = function(event) {
+Thingiview.prototype.onRendererGestureChange = function(event) {
     event.preventDefault();
 
     if (event.scale > 1) {
-      scope.setCameraZoom(+5);
+      this.scope.setCameraZoom(+5);
     } else {
-      scope.setCameraZoom(-5);
+      this.scope.setCameraZoom(-5);
     }
   }
 
-  onRendererMouseOver = function(event) {
-    mouseOver = true;
+Thingiview.prototype.onRendererMouseOver = function(event) {
+    this.mouseOver = true;
     // targetRotation = object.rotation.z;
-    if (timer == null) {
+    if (this.timer == null) {
       // log('starting loop');
-      timer = setInterval(sceneLoop, 1000/60);
+      this.timer = setInterval((function(self) {
+                                  return function() {
+                                    self.sceneLoop();
+                                  }
+                                 })(this), 1000/60);
     }
   }
 
-  onRendererMouseDown = function(event) {
+Thingiview.prototype.onRendererMouseDown = function(event) {
     // log("down");
 
     event.preventDefault();
-  	mouseDown = true;
+  	this.mouseDown = true;
     
-    if(scope.getRotation()){
-      wasRotating = true;
-      scope.setRotation(false);
+    if(this.scope.getRotation()){
+      this.wasRotating = true;
+      this.setRotation(false);
     } else {
-      wasRotating = false;
+      this.wasRotating = false;
     }
     
-  	mouseXOnMouseDown = event.clientX - windowHalfX;
-  	mouseYOnMouseDown = event.clientY - windowHalfY;
+  	mouseXOnMouseDown = event.clientX - this.windowHalfX;
+  	mouseYOnMouseDown = event.clientY - this.windowHalfY;
 
-  	targetXRotationOnMouseDown = targetXRotation;
-  	targetYRotationOnMouseDown = targetYRotation;
+  	this.targetXRotationOnMouseDown = this.targetXRotation;
+  	this.targetYRotationOnMouseDown = this.targetYRotation;
   }
 
-  onRendererMouseMove = function(event) {
+Thingiview.prototype.onRendererMouseMove = function(event) {
     // log("move");
 
-    if (mouseDown) {
-  	  mouseX = event.clientX - windowHalfX;
-      // targetXRotation = targetXRotationOnMouseDown + (mouseX - mouseXOnMouseDown) * 0.02;
-  	  xrot = targetXRotationOnMouseDown + (mouseX - mouseXOnMouseDown) * 0.02;
+    if (this.mouseDown) {
+  	  mouseX = event.clientX - this.windowHalfX;
+      // this.targetXRotation = this.targetXRotationOnMouseDown + (mouseX - mouseXOnMouseDown) * 0.02;
+  	  xrot = this.targetXRotationOnMouseDown + (mouseX - mouseXOnMouseDown) * 0.02;
 
-  	  mouseY = event.clientY - windowHalfY;
-      // targetYRotation = targetYRotationOnMouseDown + (mouseY - mouseYOnMouseDown) * 0.02;
-  	  yrot = targetYRotationOnMouseDown + (mouseY - mouseYOnMouseDown) * 0.02;
+  	  mouseY = event.clientY - this.windowHalfY;
+      // this.targetYRotation = this.targetYRotationOnMouseDown + (mouseY - mouseYOnMouseDown) * 0.02;
+  	  yrot = this.targetYRotationOnMouseDown + (mouseY - mouseYOnMouseDown) * 0.02;
   	  
-  	  targetXRotation = xrot;
-  	  targetYRotation = yrot;
+  	  this.targetXRotation = xrot;
+  	  this.targetYRotation = yrot;
 	  }
   }
 
-  onRendererMouseUp = function(event) {
+Thingiview.prototype.onRendererMouseUp = function(event) {
     // log("up");
-    if (mouseDown) {
-      mouseDown = false;
-      if (!mouseOver) {
-        clearInterval(timer);
-        timer = null;
+    if (this.mouseDown) {
+      this.mouseDown = false;
+      if (!this.mouseOver) {
+        clearInterval(this.timer);
+        this.timer = null;
       }
-      if (wasRotating) {
-        scope.setRotation(true);
+      if (this.wasRotating) {
+        this.setRotation(true);
       }
     }
   }
 
-  onRendererMouseOut = function(event) {
-    if (!mouseDown) {
-      clearInterval(timer);
-      timer = null;
+Thingiview.prototype.onRendererMouseOut = function(event) {
+    if (!this.mouseDown) {
+      clearInterval(this.timer);
+      this.timer = null;
     }
-    mouseOver = false;
+    this.mouseOver = false;
   }
 
-  onRendererTouchStart = function(event) {
-    targetXRotation = object.rotation.z;
-    targetYRotation = object.rotation.x;
+Thingiview.prototype.onRendererTouchStart = function(event) {
+    this.targetXRotation = this.object.rotation.z;
+    this.targetYRotation = this.object.rotation.x;
 
-    timer = setInterval(sceneLoop, 1000/60);
+    this.timer = setInterval((function(self) {
+                                return function() {
+                                  self.sceneLoop();
+                                }
+                               })(this), 1000/60);
 
   	if (event.touches.length == 1) {
   		event.preventDefault();
 
-  		mouseXOnMouseDown = event.touches[0].pageX - windowHalfX;
-  		targetXRotationOnMouseDown = targetXRotation;
+  		mouseXOnMouseDown = event.touches[0].pageX - this.windowHalfX;
+  		this.targetXRotationOnMouseDown = this.targetXRotation;
 
-  		mouseYOnMouseDown = event.touches[0].pageY - windowHalfY;
-  		targetYRotationOnMouseDown = targetYRotation;
+  		mouseYOnMouseDown = event.touches[0].pageY - this.windowHalfY;
+  		this.targetYRotationOnMouseDown = this.targetYRotation;
   	}
   }
 
-  onRendererTouchEnd = function(event) {
-    clearInterval(timer);
-    timer = null;
-    // targetXRotation = object.rotation.z;
-    // targetYRotation = object.rotation.x;
+Thingiview.prototype.onRendererTouchEnd = function(event) {
+    clearInterval(this.timer);
+    this.timer = null;
+    // this.targetXRotation = this.object.rotation.z;
+    // this.targetYRotation = this.object.rotation.x;
   }
 
-  onRendererTouchMove = function(event) {
+Thingiview.prototype.onRendererTouchMove = function(event) {
   	if (event.touches.length == 1) {
   		event.preventDefault();
 
-  		mouseX = event.touches[0].pageX - windowHalfX;
-  		targetXRotation = targetXRotationOnMouseDown + (mouseX - mouseXOnMouseDown) * 0.05;
+  		mouseX = event.touches[0].pageX - this.windowHalfX;
+  		this.targetXRotation = this.targetXRotationOnMouseDown + (mouseX - mouseXOnMouseDown) * 0.05;
 
-  		mouseY = event.touches[0].pageY - windowHalfY;
-  		targetYRotation = targetYRotationOnMouseDown + (mouseY - mouseYOnMouseDown) * 0.05;
+  		mouseY = event.touches[0].pageY - this.windowHalfY;
+  		this.targetYRotation = this.targetYRotationOnMouseDown + (mouseY - mouseYOnMouseDown) * 0.05;
   	}
   }
 
-  sceneLoop = function() {
-    if (object) {
+Thingiview.prototype.sceneLoop = function() {
+    if (this.object) {
       // if (view == 'bottom') {
-      //   if (showPlane) {
-      //     plane.rotation.z = object.rotation.z -= (targetRotation + object.rotation.z) * 0.05;
+      //   if (this.showPlane) {
+      //     this.plane.rotation.z = this.object.rotation.z -= (targetRotation + this.object.rotation.z) * 0.05;
       //   } else {
-      //     object.rotation.z -= (targetRotation + object.rotation.z) * 0.05;
+      //     this.object.rotation.z -= (targetRotation + this.object.rotation.z) * 0.05;
       //   }
       // } else {
-      //   if (showPlane) {
-      //     plane.rotation.z = object.rotation.z += (targetRotation - object.rotation.z) * 0.05;
+      //   if (this.showPlane) {
+      //     this.plane.rotation.z = this.object.rotation.z += (targetRotation - this.object.rotation.z) * 0.05;
       //   } else {
-      //     object.rotation.z += (targetRotation - object.rotation.z) * 0.05;
+      //     this.object.rotation.z += (targetRotation - this.object.rotation.z) * 0.05;
       //   }
       // }
 
-      if (showPlane) {
-        plane.rotation.z = object.rotation.z = (targetXRotation - object.rotation.z) * 0.2;
-        plane.rotation.x = object.rotation.x = (targetYRotation - object.rotation.x) * 0.2;
+      if (this.showPlane) {
+        this.plane.rotation.z = this.object.rotation.z = (this.targetXRotation - this.object.rotation.z) * 0.2;
+        this.plane.rotation.x = this.object.rotation.x = (this.targetYRotation - this.object.rotation.x) * 0.2;
       } else {
-        object.rotation.z = (targetXRotation - object.rotation.z) * 0.2;
-        object.rotation.x = (targetYRotation - object.rotation.x) * 0.2;
+        this.object.rotation.z = (this.targetXRotation - this.object.rotation.z) * 0.2;
+        this.object.rotation.x = (this.targetYRotation - this.object.rotation.x) * 0.2;
       }
 
-      // log(object.rotation.x);
+      // log(this.object.rotation.x);
 
-      camera.updateMatrix();
-      object.updateMatrix();
-      
-      if (showPlane) {
-        plane.updateMatrix();
+      this.camera.lookAt(this.camera.target);
+      this.camera.updateMatrix();
+      this.object.updateMatrix();
+
+      if (this.showPlane) {
+        this.plane.updateMatrix();
       }
 
-    	renderer.render(scene, camera);
+    	this.renderer.render(this.scene, this.camera);
       // stats.update();
     }
   }
 
-  rotateLoop = function() {
+Thingiview.prototype.rotateLoop = function() {
     // targetRotation += 0.01;
-    targetXRotation += 0.05;
-    sceneLoop();
+    this.targetXRotation += 0.05;
+    this.sceneLoop();
   }
 
-  this.getShowPlane = function(){
-    return showPlane;
+Thingiview.prototype.getShowPlane = function(){
+    return this.showPlane;
   }
 
-  this.setShowPlane = function(show) {
-    showPlane = show;
+Thingiview.prototype.setShowPlane = function(show) {
+    this.showPlane = show;
     
     if (show) {
-      if (scene && !plane) {
-        loadPlaneGeometry();
+      if (this.scene && !this.plane) {
+        this.loadPlaneGeometry();
       }
-      plane.material[0].opacity = 1;
-      // plane.updateMatrix();
+      this.plane.material[0].opacity = 1;
+      // this.plane.updateMatrix();
     } else {
-      if (scene && plane) {
-        // alert(plane.material[0].opacity);
-        plane.material[0].opacity = 0;
-        // plane.updateMatrix();
+      if (this.scene && this.plane) {
+        // alert(this.plane.material[0].opacity);
+        this.plane.material[0].opacity = 0;
+        // this.plane.updateMatrix();
       }
     }
     
-    sceneLoop();
+    this.sceneLoop();
   }
 
-  this.getRotation = function() {
-    return rotateTimer !== null;
+Thingiview.prototype.getRotation = function() {
+    return this.rotateTimer !== null;
   }
 
-  this.setRotation = function(rotate) {
+Thingiview.prototype.setRotation = function(rotate) {
     rotation = rotate;
     
+    clearInterval(this.rotateTimer);
+
     if (rotate) {
-      rotateTimer = setInterval(rotateLoop, 1000/60);
+      this.rotateTimer = setInterval((function(self) {
+                                        return function() {
+                                          self.rotateLoop();
+                                        }
+                                       })(this), 1000/60);
     } else {
-      clearInterval(rotateTimer);
-      rotateTimer = null;
+      this.rotateTimer = null;
     }
 
-    scope.onSetRotation();
+    this.scope.onSetRotation();
   }
 
-  this.onSetRotation = function(callback) {
+Thingiview.prototype.onSetRotation = function(callback) {
     if(callback === undefined){
-      if(rotateListener !== null){
+      if(this.rotateListener !== null){
         try{
-          rotateListener(scope.getRotation());
+          this.rotateListener(this.scope.getRotation());
         } catch(ignored) {}
       }
     } else {
-      rotateListener = callback;
+      this.rotateListener = callback;
     }
   }
 
-  this.setCameraView = function(dir) {
-    cameraView = dir;
+Thingiview.prototype.setCameraView = function(dir) {
+    this.cameraView = dir;
 
-    targetXRotation       = 0;
-    targetYRotation       = 0;
+    this.targetXRotation       = 0;
+    this.targetYRotation       = 0;
 
-    if (object) {
-      object.rotation.x = 0;
-      object.rotation.y = 0;
-      object.rotation.z = 0;
+    if (this.object) {
+      this.object.rotation.x = 0;
+      this.object.rotation.y = 0;
+      this.object.rotation.z = 0;
     }
 
-    if (showPlane && object) {
-      plane.rotation.x = object.rotation.x;
-      plane.rotation.y = object.rotation.y;
-      plane.rotation.z = object.rotation.z;
+    if (this.showPlane && this.object) {
+      this.plane.rotation.x = this.object.rotation.x;
+      this.plane.rotation.y = this.object.rotation.y;
+      this.plane.rotation.z = this.object.rotation.z;
     }
     
     if (dir == 'top') {
       // camera.position.y = 0;
-      // camera.position.z = 100;
-      // camera.target.position.z = 0;
-      if (showPlane) {
-        plane.flipSided = false;
+      // this.camera.position.z = 100;
+      // this.camera.target.z = 0;
+      if (this.showPlane) {
+        this.plane.flipSided = false;
       }
     } else if (dir == 'side') {
-      // camera.position.y = -70;
-      // camera.position.z = 70;
-      // camera.target.position.z = 0;
-      targetYRotation = -4.5;
-      if (showPlane) {
-        plane.flipSided = false;
+      // this.camera.position.y = -70;
+      // this.camera.position.z = 70;
+      // this.camera.target.z = 0;
+      this.targetYRotation = -4.5;
+      if (this.showPlane) {
+        this.plane.flipSided = false;
       }
     } else if (dir == 'bottom') {
-      // camera.position.y = 0;
-      // camera.position.z = -100;
-      // camera.target.position.z = 0;
-      if (showPlane) {
-        plane.flipSided = true;
+      // this.camera.position.y = 0;
+      // this.camera.position.z = -100;
+      // this.camera.target.z = 0;
+      if (this.showPlane) {
+        this.plane.flipSided = true;
       }
     } else {
-      // camera.position.y = -70;
-      // camera.position.z = 70;
-      // camera.target.position.z = 0;
-      if (showPlane) {
-        plane.flipSided = false;
+      // this.camera.position.y = -70;
+      // this.camera.position.z = 70;
+      // this.camera.target.z = 0;
+      if (this.showPlane) {
+        this.plane.flipSided = false;
       }
     }
 
-    mouseX            = targetXRotation;
-    mouseXOnMouseDown = targetXRotation;
+    mouseX            = this.targetXRotation;
+    mouseXOnMouseDown = this.targetXRotation;
     
-    mouseY            = targetYRotation;
-    mouseYOnMouseDown = targetYRotation;
+    mouseY            = this.targetYRotation;
+    mouseYOnMouseDown = this.targetYRotation;
     
-    scope.centerCamera();
+    this.scope.centerCamera();
     
-    sceneLoop();
+    this.sceneLoop();
   }
 
-  this.setCameraZoom = function(factor) {
-    cameraZoom = factor;
+Thingiview.prototype.setCameraZoom = function(factor) {
+    this.cameraZoom = factor;
     
-    if (cameraView == 'bottom') {
-      if (camera.position.z + factor > 0) {
+    if (this.cameraView == 'bottom') {
+      if (this.camera.position.z + factor > 0) {
         factor = 0;
       }
     } else {
-      if (camera.position.z - factor < 0) {
+      if (this.camera.position.z - factor < 0) {
         factor = 0;
       }
     }
     
-    if (cameraView == 'top') {
-      camera.position.z -= factor;
-    } else if (cameraView == 'bottom') {
-      camera.position.z += factor;
-    } else if (cameraView == 'side') {
-      camera.position.y += factor;
-      camera.position.z -= factor;
+    if (this.cameraView == 'top') {
+      this.camera.position.z -= factor;
+    } else if (this.cameraView == 'bottom') {
+      this.camera.position.z += factor;
+    } else if (this.cameraView == 'side') {
+      this.camera.position.y += factor;
+      this.camera.position.z -= factor;
     } else {
-      camera.position.y += factor;
-      camera.position.z -= factor;
+      this.camera.position.y += factor;
+      this.camera.position.z -= factor;
     }
 
-    sceneLoop();
+    this.sceneLoop();
   }
 
-  this.getObjectMaterial = function() {
-    return objectMaterial;
+Thingiview.prototype.getObjectMaterial = function() {
+    return this.objectMaterial;
   }
 
-  this.setObjectMaterial = function(type) {
-    objectMaterial = type;
+Thingiview.prototype.setObjectMaterial = function(type) {
+    this.objectMaterial = type;
 
-    loadObjectGeometry();
+    this.loadObjectGeometry();
   }
 
-  this.setBackgroundColor = function(color) {
+Thingiview.prototype.setBackgroundColor = function(color) {
     backgroundColor = color
     
-    if (renderer) {
-      renderer.domElement.style.backgroundColor = color;
+    if (this.renderer) {
+      this.renderer.domElement.style.backgroundColor = color;
     }
   }
 
-  this.setObjectColor = function(color) {
-    objectColor = parseInt(color.replace(/\#/g, ''), 16);
+Thingiview.prototype.setObjectColor = function(color) {
+    this.objectColor = parseInt(color.replace(/\#/g, ''), 16);
     
-    loadObjectGeometry();
+    this.loadObjectGeometry();
   }
 
-  this.loadSTL = function(url) {
-    scope.newWorker('loadSTL', url);
+Thingiview.prototype.loadSTL = function(url) {
+    this.scope.newWorker('loadSTL', url);
   }
 
-  this.loadOBJ = function(url) {
-    scope.newWorker('loadOBJ', url);
+Thingiview.prototype.loadOBJ = function(url) {
+    this.scope.newWorker('loadOBJ', url);
   }
   
-  this.loadSTLString = function(STLString) {
-    scope.newWorker('loadSTLString', STLString);
+Thingiview.prototype.loadSTLString = function(STLString) {
+    this.scope.newWorker('loadSTLString', STLString);
   }
   
-  this.loadSTLBinary = function(STLBinary) {
-    scope.newWorker('loadSTLBinary', STLBinary);
+Thingiview.prototype.loadSTLBinary = function(STLBinary) {
+    this.scope.newWorker('loadSTLBinary', STLBinary);
   }
   
-  this.loadOBJString = function(OBJString) {
-    scope.newWorker('loadOBJString', OBJString);
+Thingiview.prototype.loadOBJString = function(OBJString) {
+    this.scope.newWorker('loadOBJString', OBJString);
   }
 
-  this.loadJSON = function(url) {
-    scope.newWorker('loadJSON', url);
+Thingiview.prototype.loadJSON = function(url) {
+    this.scope.newWorker('loadJSON', url);
   }
 
-  this.loadPLY = function(url) {
-    scope.newWorker('loadPLY', url);
+Thingiview.prototype.loadPLY = function(url) {
+    this.scope.newWorker('loadPLY', url);
   }
   
-  this.loadPLYString = function(PLYString) {
-    scope.newWorker('loadPLYString', PLYString);
+Thingiview.prototype.loadPLYString = function(PLYString) {
+    this.scope.newWorker('loadPLYString', PLYString);
   }
 
-  this.loadPLYBinary = function(PLYBinary) {
-    scope.newWorker('loadPLYBinary', PLYBinary);
+Thingiview.prototype.loadPLYBinary = function(PLYBinary) {
+    this.scope.newWorker('loadPLYBinary', PLYBinary);
   }
 
-  this.centerCamera = function() {
-    if (geometry) {
+Thingiview.prototype.centerCamera = function() {
+    if (this.geometry) {
       // Using method from http://msdn.microsoft.com/en-us/library/bb197900(v=xnagamestudio.10).aspx
-      // log("bounding sphere radius = " + geometry.boundingSphere.radius);
+      // log("bounding sphere radius = " + this.geometry.boundingSphere.radius);
 
       // look at the center of the object
-      camera.target.position.x = geometry.center_x;
-      camera.target.position.y = geometry.center_y;
-      camera.target.position.z = geometry.center_z;
+      this.camera.target.x = this.geometry.center_x;
+      this.camera.target.y = this.geometry.center_y;
+      this.camera.target.z = this.geometry.center_z;
 
       // set camera position to center of sphere
-      camera.position.x = geometry.center_x;
-      camera.position.y = geometry.center_y;
-      camera.position.z = geometry.center_z;
+      this.camera.position.x = this.geometry.center_x;
+      this.camera.position.y = this.geometry.center_y;
+      this.camera.position.z = this.geometry.center_z;
 
       // find distance to center
-      distance = geometry.boundingSphere.radius / Math.sin((camera.fov/2) * (Math.PI / 180));
+      distance = this.geometry.boundingSphere.radius / Math.sin((this.camera.fov/2) * (Math.PI / 180));
 
       // zoom backwards about half that distance, I don't think I'm doing the math or backwards vector calculation correctly?
-      // scope.setCameraZoom(-distance/1.8);
-      // scope.setCameraZoom(-distance/1.5);
-      scope.setCameraZoom(-distance/1.9);
+      // this.scope.setCameraZoom(-distance/1.8);
+      // this.scope.setCameraZoom(-distance/1.5);
+      this.scope.setCameraZoom(-distance/1.2);
 
-      directionalLight.position.x = geometry.min_y * 2;
-      directionalLight.position.y = geometry.min_y * 2;
-      directionalLight.position.z = geometry.max_z * 2;
+      this.directionalLight.position.x = this.geometry.min_y * 2;
+      this.directionalLight.position.y = this.geometry.min_y * 2;
+      this.directionalLight.position.z = this.geometry.max_z * 2;
 
-      pointLight.position.x = geometry.center_y;
-      pointLight.position.y = geometry.center_y;
-      pointLight.position.z = geometry.max_z * 2;
+      this.pointLight.position.x = this.geometry.center_y;
+      this.pointLight.position.y = this.geometry.center_y;
+      this.pointLight.position.z = this.geometry.max_z * 2;
     } else {
       // set to any valid position so it doesn't fail before geometry is available
-      camera.position.y = -70;
-      camera.position.z = 70;
-      camera.target.position.z = 0;
+      this.camera.position.y = -70;
+      this.camera.position.z = 70;
+      this.camera.target.z = 0;
     }
   }
 
-  this.loadArray = function(array) {
+Thingiview.prototype.loadArray = function(array) {
     log("loading array...");
-    geometry = new STLGeometry(array);
-    loadObjectGeometry();
-    scope.setRotation(false);
-    scope.setRotation(true);
-    scope.centerCamera();
-    log("finished loading " + geometry.faces.length + " faces.");
+    this.geometry = new STLGeometry(array);
+    this.loadObjectGeometry();
+    this.setRotation(false);
+    this.setRotation(true);
+    this.centerCamera();
+    log("finished loading " + this.geometry.faces.length + " faces.");
   }
 
-  this.newWorker = function(cmd, param) {
-    scope.setRotation(false);
+Thingiview.prototype.newWorker = function(cmd, param) {
+    this.setRotation(false);
   	
     var worker = new WorkerFacade(thingiurlbase + '/thingiloader.js');
+    worker.scope = this;
     
     worker.onmessage = function(event) {
       if (event.data.status == "complete") {
-        progressBar.innerHTML = 'Initializing geometry...';
-        // scene.removeObject(object);
-        geometry = new STLGeometry(event.data.content);
-        loadObjectGeometry();
-        progressBar.innerHTML = '';
-        progressBar.style.display = 'none';
+        this.scope.progressBar.innerHTML = 'Initializing geometry...';
+        // this.scene.removeObject(this.object);
+        this.scope.geometry = new STLGeometry(event.data.content);
+        this.scope.loadObjectGeometry();
+        this.scope.progressBar.innerHTML = '';
+        this.scope.progressBar.style.display = 'none';
 
-        scope.setRotation(false);
-        scope.setRotation(true);
-        log("finished loading " + geometry.faces.length + " faces.");
-        scope.centerCamera();
+        this.scope.setRotation(false);
+        this.scope.setRotation(true);
+        log("finished loading " + this.scope.geometry.faces.length + " faces.");
+        this.scope.centerCamera();
       } else if (event.data.status == "complete_points") {
-        progressBar.innerHTML = 'Initializing points...';
+        this.scope.progressBar.innerHTML = 'Initializing points...';
 
-        geometry = new THREE.Geometry();
+        this.scope.geometry = new THREE.Geometry();
 
         var material = new THREE.ParticleBasicMaterial( { color: 0xff0000, opacity: 1 } );
 
@@ -643,34 +710,35 @@ Thingiview = function(containerId) {
         for (i in event.data.content[0]) {
         // for (var i=0; i<10; i++) {
           vector = new THREE.Vector3( event.data.content[0][i][0], event.data.content[0][i][1], event.data.content[0][i][2] );
-          geometry.vertices.push( new THREE.Vertex( vector ) );
+          this.scope.geometry.vertices.push(vector);
         }
 
-        particles = new THREE.ParticleSystem( geometry, material );
+        particles = new THREE.ParticleSystem( this.geometry, material );
         particles.sortParticles = true;
         particles.updateMatrix();
-        scene.addObject( particles );
+        this.scope.scene.add( particles );
                                 
-        camera.updateMatrix();
-        renderer.render(scene, camera);
+        this.scope.camera.lookAt(this.camera.target);
+        this.scope.camera.updateMatrix();
+        this.scope.renderer.render(this.scene, this.camera);
         
-        progressBar.innerHTML = '';
-        progressBar.style.display = 'none';
+        this.scope.progressBar.innerHTML = '';
+        this.scope.progressBar.style.display = 'none';
 
-        scope.setRotation(false);
-        scope.setRotation(true);
+        this.scope.setRotation(false);
+        this.scope.setRotation(true);
         log("finished loading " + event.data.content[0].length + " points.");
-        // scope.centerCamera();
+        // this.scope.centerCamera();
       } else if (event.data.status == "progress") {
-        progressBar.style.display = 'block';
-        progressBar.style.width = event.data.content;
+        this.scope.progressBar.style.display = 'block';
+        this.scope.progressBar.style.width = event.data.content;
         // log(event.data.content);
       } else if (event.data.status == "message") {
-        progressBar.style.display = 'block';
-        progressBar.innerHTML = event.data.content;
+        this.scope.progressBar.style.display = 'block';
+        this.scope.progressBar.innerHTML = event.data.content;
         log(event.data.content);
       } else if (event.data.status == "alert") {
-        scope.displayAlert(event.data.content);
+        this.scope.displayAlert(event.data.content);
       } else {
         alert('Error: ' + event.data);
         log('Unknown Worker Message: ' + event.data);
@@ -685,7 +753,7 @@ Thingiview = function(containerId) {
     worker.postMessage({'cmd':cmd, 'param':param});
   }
 
-  this.displayAlert = function(msg) {
+Thingiview.prototype.displayAlert = function(msg) {
     msg = msg + "<br/><br/><center><input type=\"button\" value=\"Ok\" onclick=\"document.getElementById('alertBox').style.display='none'\"></center>"
     
     alertBox.innerHTML = msg;
@@ -694,57 +762,67 @@ Thingiview = function(containerId) {
     // log(msg);
   }
 
-  function loadPlaneGeometry() {
-    // TODO: switch to lines instead of the Plane object so we can get rid of the horizontal lines in canvas renderer...
-    plane = new THREE.Mesh(new Plane(100, 100, 10, 10), new THREE.MeshBasicMaterial({color:0xafafaf,wireframe:true}));
-    scene.addObject(plane);
+Thingiview.prototype.loadPlaneGeometry = function() {
+    var material = new THREE.LineBasicMaterial({color:0xafafaf, opacity: 1});
+    this.plane = new THREE.Object3D();
+    for (var i=-this.gridsize/2; i<= this.gridsize/2; i += this.gridunit) {
+      var geometry = new THREE.Geometry();
+      geometry.vertices.push(new THREE.Vector3 (i, -this.gridsize/2, 0));
+      geometry.vertices.push(new THREE.Vector3 (i, this.gridsize/2, 0));
+      var line = new THREE.Line(geometry, material);
+      this.plane.add(line);
+      geometry = new THREE.Geometry();
+      geometry.vertices.push(new THREE.Vector3 (-this.gridsize/2, i, 0));
+      geometry.vertices.push(new THREE.Vector3 (this.gridsize/2, i, 0));
+      line = new THREE.Line(geometry, material);
+      this.plane.add(line);
+    }
+    this.scene.add(this.plane);
   }
 
-  function loadObjectGeometry() {
-    if (scene && geometry) {
-      if (objectMaterial == 'wireframe') {
-        // material = new THREE.MeshColorStrokeMaterial(objectColor, 1, 1);
-        material = new THREE.MeshBasicMaterial({color:objectColor,wireframe:true});
+Thingiview.prototype.loadObjectGeometry = function() {
+    if (this.scene && this.geometry) {
+      if (this.objectMaterial == 'wireframe') {
+        // material = new THREE.MeshColorStrokeMaterial(this.objectColor, 1, 1);
+        material = new THREE.MeshBasicMaterial({color:this.objectColor,wireframe:true});
       } else {
         if (isWebGl) {
-          // material = new THREE.MeshPhongMaterial(objectColor, objectColor, 0xffffff, 50, 1.0);
-          // material = new THREE.MeshColorFillMaterial(objectColor);
-          // material = new THREE.MeshLambertMaterial({color:objectColor});
-          material = new THREE.MeshLambertMaterial({color:objectColor, shading: THREE.FlatShading});
+          // material = new THREE.MeshPhongMaterial(this.objectColor, this.objectColor, 0xffffff, 50, 1.0);
+          // material = new THREE.MeshColorFillMaterial(this.objectColor);
+          // material = new THREE.MeshLambertMaterial({color:this.objectColor});
+          material = new THREE.MeshLambertMaterial({color:this.objectColor, shading: THREE.FlatShading});
         } else {
-          // material = new THREE.MeshColorFillMaterial(objectColor);
-          material = new THREE.MeshLambertMaterial({color:objectColor, shading: THREE.FlatShading});
+          // material = new THREE.MeshColorFillMaterial(this.objectColor);
+          material = new THREE.MeshLambertMaterial({color:this.objectColor, shading: THREE.FlatShading});
         }
       }
 
-      // scene.removeObject(object);      
+      // scene.removeObject(this.object);      
 
-      if (object) {
+      if (this.object) {
         // shouldn't be needed, but this fixes a bug with webgl not removing previous object when loading a new one dynamically
-        object.materials = [new THREE.MeshBasicMaterial({color:0xffffff, opacity:0})];
-        scene.removeObject(object);        
-        // object.geometry = geometry;
-        // object.materials = [material];
+        this.object.materials = [new THREE.MeshBasicMaterial({color:0xffffff, opacity:0})];
+        this.scene.removeObject(this.object);        
+        // this.object.geometry = geometry;
+        // this.object.materials = [material];
       }
 
-      object = new THREE.Mesh(geometry, material);
-  		scene.addObject(object);
+      this.object = new THREE.Mesh(this.geometry, material);
+  		this.scene.add(this.object);
 
-      if (objectMaterial != 'wireframe') {
-        object.overdraw = true;
-        object.doubleSided = true;
+      if (this.objectMaterial != 'wireframe') {
+        this.object.overdraw = true;
+        this.object.doubleSided = true;
       }
       
-      object.updateMatrix();
+      this.object.updateMatrix();
     
-      targetXRotation = 0;
-      targetYRotation = 0;
+      this.targetXRotation = 0;
+      this.targetYRotation = 0;
 
-      sceneLoop();
+      this.sceneLoop();
     }
   }
-
-};
 
 var STLGeometry = function(stlArray) {
   // log("building geometry...");
@@ -766,7 +844,7 @@ var STLGeometry = function(stlArray) {
 
   function v(x, y, z) {
     // log("adding vertex: " + x + "," + y + "," + z);
-    scope.vertices.push( new THREE.Vertex( new THREE.Vector3( x, y, z ) ) );
+    scope.vertices.push( new THREE.Vector3( x, y, z ) );
   }
 
   function f3(a, b, c) {
@@ -779,7 +857,6 @@ var STLGeometry = function(stlArray) {
   // log("computing normals...");
   // this.computeNormals();
 	this.computeFaceNormals();
-	this.sortFacesByMaterial();
   // log("finished building geometry");
 
   scope.min_x = 0;
@@ -791,25 +868,38 @@ var STLGeometry = function(stlArray) {
   scope.max_z = 0;
   
   for (var v = 0, vl = scope.vertices.length; v < vl; v ++) {
-		scope.max_x = Math.max(scope.max_x, scope.vertices[v].position.x);
-		scope.max_y = Math.max(scope.max_y, scope.vertices[v].position.y);
-		scope.max_z = Math.max(scope.max_z, scope.vertices[v].position.z);
+		scope.max_x = Math.max(scope.max_x, scope.vertices[v].x);
+		scope.max_y = Math.max(scope.max_y, scope.vertices[v].y);
+		scope.max_z = Math.max(scope.max_z, scope.vertices[v].z);
 		                                    
-		scope.min_x = Math.min(scope.min_x, scope.vertices[v].position.x);
-		scope.min_y = Math.min(scope.min_y, scope.vertices[v].position.y);
-		scope.min_z = Math.min(scope.min_z, scope.vertices[v].position.z);
-}
+		scope.min_x = Math.min(scope.min_x, scope.vertices[v].x);
+		scope.min_y = Math.min(scope.min_y, scope.vertices[v].y);
+		scope.min_z = Math.min(scope.min_z, scope.vertices[v].z);
+  }
 
   scope.center_x = (scope.max_x + scope.min_x)/2;
   scope.center_y = (scope.max_y + scope.min_y)/2;
   scope.center_z = (scope.max_z + scope.min_z)/2;
+
+  for (var v = 0, vl = scope.vertices.length; v < vl; v ++) {
+    scope.vertices[v].x -= scope.center_x;
+    scope.vertices[v].y -= scope.center_y;
+  }
+  scope.max_x -= scope.center_x;
+  scope.max_y -= scope.center_y;
+                                      
+  scope.min_x -= scope.center_x;
+  scope.min_y -= scope.center_y;
+
+  scope.center_x = 0;
+  scope.center_y = 0;
 }
 
 STLGeometry.prototype = new THREE.Geometry();
 STLGeometry.prototype.constructor = STLGeometry;
 
 function log(msg) {
-  if (this.console) {
+  if (console) {
     console.log(msg);
   }
 }
