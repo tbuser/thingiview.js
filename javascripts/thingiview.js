@@ -77,8 +77,8 @@ Thingiview.prototype.initScene = function() {
 
   	this.scene  = new THREE.Scene();
 
-    ambientLight = new THREE.AmbientLight(0x202020);
-    this.scene.add(ambientLight);
+    this.ambientLight = new THREE.AmbientLight(0x202020);
+    this.scene.add(this.ambientLight);
     
     this.directionalLight = new THREE.DirectionalLight(0xffffff, 0.75);
     this.directionalLight.position.x = 1;
