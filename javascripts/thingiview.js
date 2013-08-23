@@ -651,7 +651,7 @@ Thingiview.prototype.centerCamera = function() {
       // zoom backwards about half that distance, I don't think I'm doing the math or backwards vector calculation correctly?
       // this.scope.setCameraZoom(-distance/1.8);
       // this.scope.setCameraZoom(-distance/1.5);
-      this.scope.setCameraZoom(-distance/1.9);
+      this.scope.setCameraZoom(-distance/1.2);
 
       this.directionalLight.position.x = this.geometry.min_y * 2;
       this.directionalLight.position.y = this.geometry.min_y * 2;
