@@ -93,17 +93,17 @@ Thingiview.prototype.initScene = function() {
     this.pointLight.position.z = 10;
     this.scene.add(this.pointLight);
 
-    progressBar = document.createElement('div');
-    progressBar.style.position = 'absolute';
-    progressBar.style.top = '0px';
-    progressBar.style.left = '0px';
-    progressBar.style.backgroundColor = 'red';
-    progressBar.style.padding = '5px';
-    progressBar.style.display = 'none';
-    progressBar.style.overflow = 'visible';
-    progressBar.style.whiteSpace = 'nowrap';
-    progressBar.style.zIndex = 100;
-    this.container.appendChild(progressBar);
+    this.progressBar = document.createElement('div');
+    this.progressBar.style.position = 'absolute';
+    this.progressBar.style.top = '0px';
+    this.progressBar.style.left = '0px';
+    this.progressBar.style.backgroundColor = 'red';
+    this.progressBar.style.padding = '5px';
+    this.progressBar.style.display = 'none';
+    this.progressBar.style.overflow = 'visible';
+    this.progressBar.style.whiteSpace = 'nowrap';
+    this.progressBar.style.zIndex = 100;
+    this.container.appendChild(this.progressBar);
     
     alertBox = document.createElement('div');
     alertBox.id = 'alertBox';
@@ -684,19 +684,19 @@ Thingiview.prototype.newWorker = function(cmd, param) {
     
     worker.onmessage = function(event) {
       if (event.data.status == "complete") {
-        progressBar.innerHTML = 'Initializing geometry...';
+        this.scope.progressBar.innerHTML = 'Initializing geometry...';
         // this.scene.removeObject(this.object);
         this.scope.geometry = new STLGeometry(event.data.content);
         this.scope.loadObjectGeometry();
-        progressBar.innerHTML = '';
-        progressBar.style.display = 'none';
+        this.scope.progressBar.innerHTML = '';
+        this.scope.progressBar.style.display = 'none';
 
         this.scope.setRotation(false);
         this.scope.setRotation(true);
         log("finished loading " + this.scope.geometry.faces.length + " faces.");
         this.scope.centerCamera();
       } else if (event.data.status == "complete_points") {
-        progressBar.innerHTML = 'Initializing points...';
+        this.scope.progressBar.innerHTML = 'Initializing points...';
 
         this.scope.geometry = new THREE.Geometry();
 
@@ -720,20 +720,20 @@ Thingiview.prototype.newWorker = function(cmd, param) {
         this.scope.camera.updateMatrix();
         this.scope.renderer.render(this.scene, this.camera);
         
-        progressBar.innerHTML = '';
-        progressBar.style.display = 'none';
+        this.scope.progressBar.innerHTML = '';
+        this.scope.progressBar.style.display = 'none';
 
         this.scope.setRotation(false);
         this.scope.setRotation(true);
         log("finished loading " + event.data.content[0].length + " points.");
         // this.scope.centerCamera();
       } else if (event.data.status == "progress") {
-        progressBar.style.display = 'block';
-        progressBar.style.width = event.data.content;
+        this.scope.progressBar.style.display = 'block';
+        this.scope.progressBar.style.width = event.data.content;
         // log(event.data.content);
       } else if (event.data.status == "message") {
-        progressBar.style.display = 'block';
-        progressBar.innerHTML = event.data.content;
+        this.scope.progressBar.style.display = 'block';
+        this.scope.progressBar.innerHTML = event.data.content;
         log(event.data.content);
       } else if (event.data.status == "alert") {
         this.scope.displayAlert(event.data.content);
