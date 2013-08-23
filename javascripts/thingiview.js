@@ -80,18 +80,18 @@ Thingiview.prototype.initScene = function() {
     ambientLight = new THREE.AmbientLight(0x202020);
     this.scene.add(ambientLight);
     
-    directionalLight = new THREE.DirectionalLight(0xffffff, 0.75);
-    directionalLight.position.x = 1;
-    directionalLight.position.y = 1;
-    directionalLight.position.z = 2;
-    directionalLight.position.normalize();
-    this.scene.add(directionalLight);
+    this.directionalLight = new THREE.DirectionalLight(0xffffff, 0.75);
+    this.directionalLight.position.x = 1;
+    this.directionalLight.position.y = 1;
+    this.directionalLight.position.z = 2;
+    this.directionalLight.position.normalize();
+    this.scene.add(this.directionalLight);
     
-    pointLight = new THREE.PointLight(0xffffff, 0.3);
-    pointLight.position.x = 0;
-    pointLight.position.y = -25;
-    pointLight.position.z = 10;
-    this.scene.add(pointLight);
+    this.pointLight = new THREE.PointLight(0xffffff, 0.3);
+    this.pointLight.position.x = 0;
+    this.pointLight.position.y = -25;
+    this.pointLight.position.z = 10;
+    this.scene.add(this.pointLight);
 
     progressBar = document.createElement('div');
     progressBar.style.position = 'absolute';
@@ -651,13 +651,13 @@ Thingiview.prototype.centerCamera = function() {
       // this.scope.setCameraZoom(-distance/1.5);
       this.scope.setCameraZoom(-distance/1.9);
 
-      directionalLight.position.x = this.geometry.min_y * 2;
-      directionalLight.position.y = this.geometry.min_y * 2;
-      directionalLight.position.z = this.geometry.max_z * 2;
+      this.directionalLight.position.x = this.geometry.min_y * 2;
+      this.directionalLight.position.y = this.geometry.min_y * 2;
+      this.directionalLight.position.z = this.geometry.max_z * 2;
 
-      pointLight.position.x = this.geometry.center_y;
-      pointLight.position.y = this.geometry.center_y;
-      pointLight.position.z = this.geometry.max_z * 2;
+      this.pointLight.position.x = this.geometry.center_y;
+      this.pointLight.position.y = this.geometry.center_y;
+      this.pointLight.position.z = this.geometry.max_z * 2;
     } else {
       // set to any valid position so it doesn't fail before geometry is available
       this.camera.position.y = -70;
