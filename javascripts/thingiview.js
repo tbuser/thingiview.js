@@ -761,8 +761,20 @@ Thingiview.prototype.displayAlert = function(msg) {
   }
 
 Thingiview.prototype.loadPlaneGeometry = function() {
-    // TODO: switch to lines instead of the Plane object so we can get rid of the horizontal lines in canvas renderer...
-    this.plane = new THREE.Mesh(new THREE.PlaneGeometry(this.gridsize, this.gridsize, this.gridsize / this.gridunit, this.gridsize / this.gridunit), new THREE.MeshBasicMaterial({color:0xafafaf,wireframe:true}));
+    var material = new THREE.LineBasicMaterial({color:0xafafaf, opacity: 1});
+    this.plane = new THREE.Object3D();
+    for (var i=-this.gridsize/2; i<= this.gridsize/2; i += this.gridunit) {
+      var geometry = new THREE.Geometry();
+      geometry.vertices.push(new THREE.Vector3 (i, -this.gridsize/2, 0));
+      geometry.vertices.push(new THREE.Vector3 (i, this.gridsize/2, 0));
+      var line = new THREE.Line(geometry, material);
+      this.plane.add(line);
+      geometry = new THREE.Geometry();
+      geometry.vertices.push(new THREE.Vector3 (-this.gridsize/2, i, 0));
+      geometry.vertices.push(new THREE.Vector3 (this.gridsize/2, i, 0));
+      line = new THREE.Line(geometry, material);
+      this.plane.add(line);
+    }
     this.scene.add(this.plane);
   }
 
