@@ -5,12 +5,16 @@ A javascript (using Canvas and WebGL if available) 3D model viewer.  Uses the [T
 
 # Features
 
-* supports binary and ascii STL and OBJ files without requiring any preprocessing, all the parsing is done on the client in javascript
-* everything is done client side in javascript, requires no plugins for most browsers
-* should work in all browsers, including iPhone/iPad (might require [Google Chrome Frame](http://code.google.com/chrome/chromeframe) for IE)
-* uses HTML canvas or automatically detects and enables webgl if browser supports it
-* configurable colors
-* is made of awesome
+* Supports binary and ascii STL and OBJ files without requiring any preprocessing, all the parsing is done on the client in javascript
+* Everything is done client side in javascript, requires no plugins for most browsers
+* Should work in all browsers, including iPhone/iPad (might require [Google Chrome Frame](http://code.google.com/chrome/chromeframe) for IE)
+* Uses HTML canvas or automatically detects and enables webgl if browser supports it
+* Configurable colors
+* Is made of awesome
+* Functional Style
+* Async Processing
+
+
 
 # Example
 
