@@ -1,9 +1,9 @@
-Thingiview.js
+ThingiView.js
 =============
 
-A javascript (using Canvas and WebGL if available) 3D model viewer.  Uses the [Three.js](http://github.com/mrdoob/three.js) 3D Engine.  Check out the [Examples](http://replimat.com/thingiview/examples/).
+An fantastic javascript (using Canvas and WebGL if available) 3D model viewer.  Uses the [Three.js](http://github.com/mrdoob/three.js) 3D Engine.  Check out the [Examples](http://replimat.com/thingiview/examples/).
 
-# Features
+# Features :-
 
 * supports binary and ascii STL and OBJ files without requiring any preprocessing, all the parsing is done on the client in javascript
 * everything is done client side in javascript, requires no plugins for most browsers
@@ -12,7 +12,7 @@ A javascript (using Canvas and WebGL if available) 3D model viewer.  Uses the [T
 * configurable colors
 * is made of awesome
 
-# Example
+# Example :-
 
 <pre><code>
     &lt;script src="/javascripts/Three.js"&gt;&lt;/script&gt;
@@ -32,7 +32,7 @@ A javascript (using Canvas and WebGL if available) 3D model viewer.  Uses the [T
     &lt;div id="viewer" style="width:300px;height:300px"&gt;&lt;/div&gt;
 </code></pre>
 
-# Usage
+# Usage :- 
 
 It's important that everything is done within window.onload.
 
